@@ -11,7 +11,7 @@ export interface VariantMeta {
   features: string[];
 }
 
-export const VARIANT_META: { full: VariantMeta; [k: string]: VariantMeta } = {
+export const VARIANT_META: { full: VariantMeta;[k: string]: VariantMeta } = {
   full: {
     title: 'World Monitor - Real-Time Global Intelligence Dashboard',
     description: 'Real-time global intelligence dashboard with live news, markets, military tracking, infrastructure monitoring, and geopolitical data. OSINT in one view.',
@@ -102,6 +102,27 @@ export const VARIANT_META: { full: VariantMeta; [k: string]: VariantMeta } = {
       'Financial center mapping',
       'Sector heatmap',
       'Market radar signals',
+    ],
+  },
+  taiwan: {
+    title: 'Taiwan Monitor - 台灣即時情報儀表板',
+    description: '台灣即時情報儀表板：整合新聞聚合、台海動態、台股追蹤、氣象預警及基礎設施監控。',
+    keywords: '台灣情報, 台海局勢, 台股, 加權指數, 地震, 颱風, 台灣新聞, 國防, 半導體, TSMC, 台積電, 台灣監控, Taiwan intelligence, Taiwan monitor, OSINT',
+    url: 'https://taiwan.worldmonitor.app/',
+    siteName: 'Taiwan Monitor',
+    shortName: 'TaiwanMonitor',
+    subject: '台灣即時情報與態勢感知',
+    classification: '情報儀表板, 新聞聚合, 台灣監控',
+    categories: ['news', 'productivity'],
+    features: [
+      '台灣即時新聞聚合',
+      '台股加權指數追蹤',
+      '台海軍事動態監控',
+      '地震颱風即時預警',
+      '台電供電資訊',
+      '半導體產業追蹤',
+      '海底電纜監控',
+      '國際情報分析',
     ],
   },
 };

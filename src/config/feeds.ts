@@ -1055,14 +1055,65 @@ const HAPPY_FEEDS: Record<string, Feed[]> = {
   ],
 };
 
+// Taiwan variant feeds
+const TAIWAN_FEEDS: Record<string, Feed[]> = {
+  politics: [
+    { name: '中央社 CNA', url: rss('https://news.google.com/rss/search?q=site:cna.com.tw+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '聯合新聞網', url: rss('https://udn.com/rssfeed/news/2/6638?ch=news'), lang: 'zh' },
+    { name: '自由時報', url: rss('https://news.google.com/rss/search?q=site:ltn.com.tw+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '中時新聞', url: rss('https://news.google.com/rss/search?q=site:chinatimes.com+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: 'TVBS', url: rss('https://news.google.com/rss/search?q=site:news.tvbs.com.tw+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '三立新聞', url: rss('https://news.google.com/rss/search?q=site:setn.com+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '公視新聞', url: rss('https://news.google.com/rss/search?q=site:news.pts.org.tw+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: 'ETtoday', url: rss('https://news.google.com/rss/search?q=site:ettoday.net+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+  ],
+  asia: [
+    { name: 'BBC Asia', url: rss('https://feeds.bbci.co.uk/news/world/asia/rss.xml') },
+    { name: '報導者', url: rss('https://news.google.com/rss/search?q=site:twreporter.org+when:3d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '關鍵評論網', url: rss('https://news.google.com/rss/search?q=site:thenewslens.com+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: 'The Diplomat', url: rss('https://thediplomat.com/feed/') },
+    { name: 'Reuters Asia', url: rss('https://news.google.com/rss/search?q=site:reuters.com+(Taiwan+OR+China+OR+Japan+OR+Korea)+when:3d&hl=en-US&gl=US&ceid=US:en') },
+    { name: 'South China Morning Post', url: rss('https://www.scmp.com/rss/91/feed/') },
+    { name: 'Nikkei Asia', url: rss('https://news.google.com/rss/search?q=site:asia.nikkei.com+when:3d&hl=en-US&gl=US&ceid=US:en') },
+    { name: '台海動態', url: rss('https://news.google.com/rss/search?q=(台海+OR+共軍+OR+台灣國防+OR+Taiwan+Strait+OR+PLA)+when:3d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+  ],
+  tech: [
+    { name: 'iThome', url: rss('https://www.ithome.com.tw/rss'), lang: 'zh' },
+    { name: '科技新報', url: rss('https://news.google.com/rss/search?q=site:technews.tw+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '數位時代', url: rss('https://news.google.com/rss/search?q=site:bnext.com.tw+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '半導體產業', url: rss('https://news.google.com/rss/search?q=(台積電+OR+TSMC+OR+MediaTek+OR+聯發科+OR+日月光)+when:3d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: 'Hacker News', url: rss('https://hnrss.org/frontpage') },
+  ],
+  finance: [
+    { name: '工商時報', url: rss('https://news.google.com/rss/search?q=site:ctee.com.tw+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '經濟日報', url: rss('https://news.google.com/rss/search?q=site:money.udn.com+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '鈍亨網', url: rss('https://news.google.com/rss/search?q=site:cnyes.com+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: 'MoneyDJ', url: rss('https://news.google.com/rss/search?q=site:moneydj.com+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '台股動態', url: rss('https://news.google.com/rss/search?q=(台股+OR+加權指數+OR+TAIEX+OR+櫃買+OR+櫃賣)+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: 'CNBC', url: rss('https://www.cnbc.com/id/100003114/device/rss/rss.html') },
+    { name: 'Bloomberg', url: rss('https://news.google.com/rss/search?q=site:bloomberg.com+markets+when:1d&hl=en-US&gl=US&ceid=US:en') },
+  ],
+  energy: [
+    { name: '台電新聞', url: rss('https://news.google.com/rss/search?q=(台電+OR+供電+OR+電力+OR+離岸風電+OR+太陽能+OR+核電)+台灣+when:3d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: 'Oil & Gas', url: rss('https://news.google.com/rss/search?q=(oil+price+OR+OPEC+OR+"natural+gas"+OR+LNG)+when:2d&hl=en-US&gl=US&ceid=US:en') },
+  ],
+  markets: [
+    { name: '台灣證券交易所', url: rss('https://news.google.com/rss/search?q=site:twse.com.tw+when:7d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: '櫃買中心', url: rss('https://news.google.com/rss/search?q=site:tpex.org.tw+when:7d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+    { name: 'Yahoo股市', url: rss('https://news.google.com/rss/search?q=site:tw.stock.yahoo.com+when:1d&hl=zh-TW&gl=TW&ceid=TW:zh-Hant'), lang: 'zh' },
+  ],
+};
+
 // Variant-aware exports
-export const FEEDS = SITE_VARIANT === 'tech'
-  ? TECH_FEEDS
-  : SITE_VARIANT === 'finance'
-    ? FINANCE_FEEDS
-    : SITE_VARIANT === 'happy'
-      ? HAPPY_FEEDS
-      : FULL_FEEDS;
+export const FEEDS = SITE_VARIANT === 'taiwan'
+  ? TAIWAN_FEEDS
+  : SITE_VARIANT === 'tech'
+    ? TECH_FEEDS
+    : SITE_VARIANT === 'finance'
+      ? FINANCE_FEEDS
+      : SITE_VARIANT === 'happy'
+        ? HAPPY_FEEDS
+        : FULL_FEEDS;
 
 export const SOURCE_REGION_MAP: Record<string, { labelKey: string; feedKeys: string[] }> = {
   // Full (geopolitical) variant regions

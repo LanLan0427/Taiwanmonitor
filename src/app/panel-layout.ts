@@ -49,6 +49,10 @@ import { GoodThingsDigestPanel } from '@/components/GoodThingsDigestPanel';
 import { SpeciesComebackPanel } from '@/components/SpeciesComebackPanel';
 import { RenewableEnergyPanel } from '@/components/RenewableEnergyPanel';
 import { GivingPanel } from '@/components';
+import { TaiwanPowerEqPanel } from '@/components/TaiwanPowerEqPanel';
+import { TaiwanEnvPanel } from '@/components/TaiwanEnvPanel';
+import { TaiwanTrainPanel } from '@/components/TaiwanTrainPanel';
+import { TaiwanWeatherPanel } from '@/components/TaiwanWeatherPanel';
 import { focusInvestmentOnMap } from '@/services/investments-focus';
 import { debounce, saveToStorage } from '@/utils';
 import { escapeHtml } from '@/utils/sanitize';
@@ -171,6 +175,7 @@ export class PanelLayoutManager implements AppModule {
           <div class="region-selector">
             <select id="regionSelect" class="region-select">
               <option value="global">${t('components.deckgl.views.global')}</option>
+              ${SITE_VARIANT === 'taiwan' ? '<option value="taiwan">台灣</option>' : ''}
               <option value="america">${t('components.deckgl.views.americas')}</option>
               <option value="mena">${t('components.deckgl.views.mena')}</option>
               <option value="eu">${t('components.deckgl.views.europe')}</option>
@@ -349,9 +354,9 @@ export class PanelLayoutManager implements AppModule {
 
     const mapContainer = document.getElementById('mapContainer') as HTMLElement;
     this.ctx.map = new MapContainer(mapContainer, {
-      zoom: this.ctx.isMobile ? 2.5 : 1.0,
+      zoom: this.ctx.isMobile ? (SITE_VARIANT === 'taiwan' ? 6.5 : 2.5) : (SITE_VARIANT === 'taiwan' ? 7.0 : 1.0),
       pan: { x: 0, y: 0 },
-      view: this.ctx.isMobile ? this.ctx.resolvedLocation : 'global',
+      view: this.ctx.isMobile ? this.ctx.resolvedLocation : (SITE_VARIANT === 'taiwan' ? 'taiwan' : 'global'),
       layers: this.ctx.mapLayers,
       timeRange: '7d',
     });
@@ -633,6 +638,21 @@ export class PanelLayoutManager implements AppModule {
     }
 
     this.ctx.panels['world-clock'] = new WorldClockPanel();
+
+    // Taiwan variant - Taiwan-specific data panels
+    if (SITE_VARIANT === 'taiwan') {
+      const weatherPanel = new TaiwanWeatherPanel();
+      this.ctx.panels['taiwan-weather'] = weatherPanel;
+
+      const powerEqPanel = new TaiwanPowerEqPanel();
+      this.ctx.panels['taiwan-power-eq'] = powerEqPanel;
+
+      const envPanel = new TaiwanEnvPanel();
+      this.ctx.panels['taiwan-env'] = envPanel;
+
+      const trainPanel = new TaiwanTrainPanel();
+      this.ctx.panels['taiwan-train'] = trainPanel;
+    }
 
     if (SITE_VARIANT !== 'happy') {
       if (!this.ctx.panels['gulf-economies']) {

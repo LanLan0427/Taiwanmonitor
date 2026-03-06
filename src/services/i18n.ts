@@ -1,10 +1,11 @@
 import i18next from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import { SITE_VARIANT } from '@/config/variant';
 
 // English is always needed as fallback — bundle it eagerly.
 import enTranslation from '../locales/en.json';
 
-const SUPPORTED_LANGUAGES = ['en', 'cs', 'fr', 'de', 'el', 'es', 'it', 'pl', 'pt', 'nl', 'sv', 'ru', 'ar', 'zh', 'ja', 'ko', 'tr', 'th', 'vi'] as const;
+const SUPPORTED_LANGUAGES = ['en', 'cs', 'fr', 'de', 'el', 'es', 'it', 'pl', 'pt', 'nl', 'sv', 'ru', 'ar', 'zh', 'zh-TW', 'ja', 'ko', 'tr', 'th', 'vi'] as const;
 type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 type TranslationDictionary = Record<string, unknown>;
 
@@ -20,7 +21,10 @@ const localeModules = import.meta.glob<TranslationDictionary>(
 const RTL_LANGUAGES = new Set(['ar']);
 
 function normalizeLanguage(lng: string): SupportedLanguage {
-  const base = (lng || 'en').split('-')[0]?.toLowerCase() || 'en';
+  const raw = (lng || 'en').toLowerCase();
+  // Preserve zh-TW as a distinct locale
+  if (raw === 'zh-tw' || raw === 'zh-hant' || raw === 'zh-hant-tw') return 'zh-TW' as SupportedLanguage;
+  const base = raw.split('-')[0] || 'en';
   if (SUPPORTED_LANGUAGE_SET.has(base as SupportedLanguage)) {
     return base as SupportedLanguage;
   }
@@ -28,9 +32,10 @@ function normalizeLanguage(lng: string): SupportedLanguage {
 }
 
 function applyDocumentDirection(lang: string): void {
-  const base = lang.split('-')[0] || lang;
-  document.documentElement.setAttribute('lang', base === 'zh' ? 'zh-CN' : base);
-  if (RTL_LANGUAGES.has(base)) {
+  const normalized = normalizeLanguage(lang);
+  const htmlLang = normalized === 'zh-TW' ? 'zh-TW' : normalized === 'zh' ? 'zh-CN' : normalized.split('-')[0] || normalized;
+  document.documentElement.setAttribute('lang', htmlLang);
+  if (RTL_LANGUAGES.has(normalized.split('-')[0] || normalized)) {
     document.documentElement.setAttribute('dir', 'rtl');
   } else {
     document.documentElement.removeAttribute('dir');
@@ -86,14 +91,16 @@ export async function initI18n(): Promise<void> {
         escapeValue: false, // not needed for these simple strings
       },
       detection: {
-        order: ['localStorage', 'navigator'],
+        order: SITE_VARIANT === 'taiwan' ? ['localStorage'] : ['localStorage', 'navigator'],
         caches: ['localStorage'],
+        ...(SITE_VARIANT === 'taiwan' ? { lookupLocalStorage: 'i18nextLng' } : {}),
       },
     });
 
-  const detectedLanguage = await ensureLanguageLoaded(i18next.language || 'en');
-  if (detectedLanguage !== 'en') {
-    // Re-trigger translation resolution now that the detected bundle is loaded.
+  // For Taiwan variant, default to zh-TW if no user preference is stored
+  const defaultLang = SITE_VARIANT === 'taiwan' && !localStorage.getItem('i18nextLng') ? 'zh-TW' : (i18next.language || 'en');
+  const detectedLanguage = await ensureLanguageLoaded(defaultLang);
+  if (detectedLanguage !== i18next.language) {
     await i18next.changeLanguage(detectedLanguage);
   }
 
@@ -113,9 +120,11 @@ export async function changeLanguage(lng: string): Promise<void> {
   window.location.reload(); // Simple reload to update all components for now
 }
 
-// Helper to get current language (normalized to short code)
+// Helper to get current language (normalized to short code, preserving zh-TW)
 export function getCurrentLanguage(): string {
   const lang = i18next.language || 'en';
+  // Preserve zh-TW as distinct from zh
+  if (lang.toLowerCase().startsWith('zh-tw') || lang.toLowerCase().startsWith('zh-hant')) return 'zh-TW';
   return lang.split('-')[0]!;
 }
 
@@ -125,6 +134,7 @@ export function isRTL(): boolean {
 
 export function getLocale(): string {
   const lang = getCurrentLanguage();
+  if (lang === 'zh-TW' || lang === 'zh-tw') return 'zh-TW';
   const map: Record<string, string> = { en: 'en-US', cs: 'cs-CZ', el: 'el-GR', zh: 'zh-CN', pt: 'pt-BR', ja: 'ja-JP', ko: 'ko-KR', tr: 'tr-TR', th: 'th-TH', vi: 'vi-VN' };
   return map[lang] || lang;
 }
@@ -133,7 +143,8 @@ export const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'ar', label: 'العربية', flag: '🇸🇦' },
   { code: 'cs', label: 'Čeština', flag: '🇨🇿' },
-  { code: 'zh', label: '中文', flag: '🇨🇳' },
+  { code: 'zh', label: '中文（简体）', flag: '🇨🇳' },
+  { code: 'zh-TW', label: '中文（繁體）', flag: '🇹🇼' },
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
   { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   { code: 'el', label: 'Ελληνικά', flag: '🇬🇷' },

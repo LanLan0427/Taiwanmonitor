@@ -1,0 +1,639 @@
+[
+  {
+    "StationNo": "10201",
+    "Time": "2026-03-03T03:00:00",
+    "WaterHeight": 239.05,
+    "EffectiveStorage": 15679.0944,
+    "PercentageOfStorage": 76.38650686933644,
+    "OperationalStorage": 10.36,
+    "Inflow": 10.36,
+    "Outflow": 0,
+    "Status": -1,
+    "DischargeOfEscapeSand": 0,
+    "DischargeOfHydroelectric": 0
+  },
+  {
+    "StationNo": "10203",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 70.19,
+    "EffectiveStorage": 23.02,
+    "PercentageOfStorage": 58.13131313131312,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "10204",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 85.3,
+    "EffectiveStorage": 959.82,
+    "PercentageOfStorage": 96.37134021446644,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "10205",
+    "Time": "2026-03-03T03:00:00",
+    "AccumulatedRainfall": 0.5,
+    "WaterHeight": 165.42,
+    "EffectiveStorage": 32877.574901207205,
+    "PercentageOfStorage": 88.86407470000002,
+    "Inflow": 8.6875,
+    "Outflow": 0,
+    "Status": -1,
+    "DischargeOfHydroelectric": 0,
+    "DischargeOfOthers": 0
+  },
+  {
+    "StationNo": "10211",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 22.16,
+    "EffectiveStorage": 60.7,
+    "PercentageOfStorage": 87.21264367816093,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "10212",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 0.5,
+    "WaterHeight": 44.09,
+    "EffectiveStorage": 132.65,
+    "PercentageOfStorage": 75.80866384729684,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "10401",
+    "Time": "2026-03-02T23:00:00",
+    "WaterHeight": 134.05,
+    "EffectiveStorage": 157.36,
+    "PercentageOfStorage": 31.419843060519543,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "10405",
+    "Time": "2026-03-03T03:00:00",
+    "WaterHeight": 135.75,
+    "EffectiveStorage": 1387.08,
+    "PercentageOfStorage": 40.9928746848873,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "10501",
+    "Time": "2026-03-03T03:00:00",
+    "AccumulatedRainfall": 0,
+    "WaterHeight": 75.44,
+    "EffectiveStorage": 1585.28,
+    "PercentageOfStorage": 52.958646101629235,
+    "Inflow": 0,
+    "Outflow": 0,
+    "Status": -1,
+    "DischargeOfOthers": 0
+  },
+  {
+    "StationNo": "10601",
+    "Time": "2026-03-03T03:00:00",
+    "WaterHeight": 56.72,
+    "EffectiveStorage": 667.8314,
+    "PercentageOfStorage": 53.75852464822746,
+    "Inflow": 0.28,
+    "Outflow": 1.44,
+    "Status": -1,
+    "DischargeOfOthers": 1.44
+  },
+  {
+    "StationNo": "20101",
+    "Time": "2026-03-03T03:00:00",
+    "AccumulatedRainfall": 0,
+    "WaterHeight": 281.43,
+    "EffectiveStorage": 5081.23,
+    "PercentageOfStorage": 43.86288397708977,
+    "OperationalStorage": 6.76,
+    "Inflow": 0,
+    "Outflow": 4,
+    "Status": -1,
+    "DischargeOfHydroelectric": 4,
+    "DischargeOfOthers": 0
+  },
+  {
+    "StationNo": "20201",
+    "Time": "2026-03-03T03:00:00",
+    "WaterHeight": 1395.19,
+    "EffectiveStorage": 13618.7612262271,
+    "PercentageOfStorage": 73.8829645558673,
+    "Inflow": 5.72,
+    "Outflow": 23.87,
+    "Status": -1,
+    "DischargeOfHydroelectric": 23.87,
+    "DischargeOfOthers": 0
+  },
+  {
+    "StationNo": "20202",
+    "Time": "2026-03-03T03:00:00",
+    "WaterHeight": 272.33,
+    "EffectiveStorage": 27.61,
+    "PercentageOfStorage": 22.968139089925963,
+    "Inflow": 19.53,
+    "Status": -1
+  },
+  {
+    "StationNo": "20501",
+    "Time": "2026-03-03T03:00:00",
+    "WaterHeight": 995.37,
+    "EffectiveStorage": 906.703103,
+    "PercentageOfStorage": 35.249827114321484,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "20502",
+    "Time": "2026-03-03T03:00:00",
+    "WaterHeight": 743.08,
+    "EffectiveStorage": 8765.927204,
+    "PercentageOfStorage": 68.23783022760145,
+    "Status": -1
+  },
+  {
+    "StationNo": "20503",
+    "Time": "2026-03-03T03:00:00",
+    "WaterHeight": 208.86,
+    "EffectiveStorage": 40.65,
+    "PercentageOfStorage": 5.554720487558247,
+    "Inflow": 34.29,
+    "Outflow": 3,
+    "Status": -1,
+    "DischargeOfProtectionFlood": 3
+  },
+  {
+    "StationNo": "20509",
+    "Time": "2026-03-03T03:00:00",
+    "WaterHeight": 194.91,
+    "EffectiveStorage": 2194.98,
+    "PercentageOfStorage": 43.54253380577909,
+    "OperationalStorage": 2.99,
+    "Inflow": 0.51,
+    "Outflow": 0.07,
+    "Status": -1
+  },
+  {
+    "StationNo": "30301",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 98.06,
+    "EffectiveStorage": 983.34,
+    "PercentageOfStorage": 39.98636460656551,
+    "Inflow": 0,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "30302",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 66.49,
+    "EffectiveStorage": 307.55,
+    "PercentageOfStorage": 33.44019771632426,
+    "Inflow": 0.05,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "30306",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 57.12,
+    "EffectiveStorage": 26.7064,
+    "PercentageOfStorage": 38.70492753623188,
+    "Status": -1
+  },
+  {
+    "StationNo": "30401",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 103.27,
+    "EffectiveStorage": 295,
+    "PercentageOfStorage": 20.53921353610759,
+    "Status": -1
+  },
+  {
+    "StationNo": "30403",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 13.18,
+    "EffectiveStorage": 143.7989,
+    "PercentageOfStorage": 62.57567449956484,
+    "Status": -1
+  },
+  {
+    "StationNo": "30501",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 54.75,
+    "EffectiveStorage": 4837,
+    "PercentageOfStorage": 61.342869864722296,
+    "Status": -1
+  },
+  {
+    "StationNo": "30502",
+    "Time": "2026-03-03T03:00:00",
+    "AccumulatedRainfall": 0,
+    "WaterHeight": 211.63,
+    "EffectiveStorage": 19716,
+    "PercentageOfStorage": 40.52287581699346,
+    "Inflow": 1,
+    "Outflow": 52.54,
+    "Status": -1,
+    "DischargeOfEscapeSand": 0,
+    "DischargeOfHydroelectric": 52.54
+  },
+  {
+    "StationNo": "30503",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 0,
+    "WaterHeight": 169.9,
+    "EffectiveStorage": 4192.52,
+    "PercentageOfStorage": 49.192796120446395,
+    "OperationalStorage": 1.17,
+    "Inflow": 1.1,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "30504",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 3,
+    "WaterHeight": 139.88,
+    "EffectiveStorage": 63.77,
+    "PercentageOfStorage": 66.03705199498793,
+    "OperationalStorage": 0.02,
+    "Inflow": 0.02,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "30801",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 17.66,
+    "EffectiveStorage": 244,
+    "PercentageOfStorage": 93.35782063054789,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "30802",
+    "Time": "2026-03-03T03:00:00",
+    "AccumulatedRainfall": 0,
+    "WaterHeight": 34.04,
+    "EffectiveStorage": 705,
+    "PercentageOfStorage": 47.63352589439546,
+    "OperationalStorage": 1.66,
+    "Inflow": 1.68,
+    "Outflow": 0,
+    "Status": -1,
+    "DischargeOfEscapeSand": 0
+  },
+  {
+    "StationNo": "30803",
+    "Time": "2026-03-02T08:00:00",
+    "AccumulatedRainfall": 0,
+    "WaterHeight": 45.08,
+    "EffectiveStorage": 376.27,
+    "PercentageOfStorage": 52.55167597765363,
+    "OperationalStorage": 14.98,
+    "Inflow": 0.26,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "30901",
+    "Time": "2026-03-03T03:00:00",
+    "AccumulatedRainfall": 0,
+    "WaterHeight": 16.15,
+    "OperationalStorage": 11.59,
+    "Inflow": 11.9,
+    "Outflow": 0.31,
+    "Status": -1,
+    "DischargeOfOthers": 0.31
+  },
+  {
+    "StationNo": "31002",
+    "Time": "2026-03-03T03:00:00",
+    "AccumulatedRainfall": 0,
+    "WaterHeight": 242.58,
+    "OperationalStorage": 0,
+    "Inflow": 1.59,
+    "Outflow": 1.59,
+    "Status": -1,
+    "DischargeOfOthers": 1.59
+  },
+  {
+    "StationNo": "31201",
+    "Time": "2026-03-03T03:00:00",
+    "AccumulatedRainfall": 0,
+    "WaterHeight": 136.52,
+    "EffectiveStorage": 1911,
+    "PercentageOfStorage": 73.39676462759878,
+    "Inflow": 0.13,
+    "Outflow": 1.2,
+    "Status": -1,
+    "DischargeOfEscapeSand": 0,
+    "DischargeOfHydroelectric": 1.2
+  },
+  {
+    "StationNo": "31301",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 7.5,
+    "WaterHeight": 8.21,
+    "EffectiveStorage": 102.4,
+    "PercentageOfStorage": 84.62809917355372,
+    "OperationalStorage": 0.1,
+    "Inflow": 0,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "40701",
+    "Time": "2026-03-02T10:00:00",
+    "WaterHeight": 18.3,
+    "EffectiveStorage": 5.21,
+    "PercentageOfStorage": 71.27222982216142,
+    "Inflow": 0.0124,
+    "Outflow": 0.0124,
+    "Status": -1,
+    "DischargeOfOthers": 0.0124
+  },
+  {
+    "StationNo": "50102",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 7.5,
+    "WaterHeight": 6.76,
+    "EffectiveStorage": 25.38,
+    "PercentageOfStorage": 34.2972972972973,
+    "OperationalStorage": 0.152,
+    "Inflow": 0,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50103",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 7.5,
+    "WaterHeight": 1.11,
+    "EffectiveStorage": 2.03,
+    "PercentageOfStorage": 6.284829721362229,
+    "OperationalStorage": 0,
+    "Inflow": 0,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50104",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 0.45,
+    "WaterHeight": 1.1,
+    "EffectiveStorage": 26.71,
+    "PercentageOfStorage": 52.37254901960785,
+    "OperationalStorage": 0,
+    "Inflow": 0,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50105",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 7,
+    "WaterHeight": 11.7,
+    "EffectiveStorage": 18.2,
+    "PercentageOfStorage": 77.11864406779661,
+    "OperationalStorage": 0,
+    "Inflow": 0,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50106",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 0,
+    "WaterHeight": 22.4,
+    "EffectiveStorage": 9.9,
+    "PercentageOfStorage": 44,
+    "OperationalStorage": 0,
+    "Inflow": 0,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50108",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 8,
+    "WaterHeight": 5,
+    "EffectiveStorage": 1.9,
+    "PercentageOfStorage": 9.268292682926829,
+    "OperationalStorage": 0,
+    "Inflow": 0,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50109",
+    "Time": "2026-03-02T07:00:00",
+    "AccumulatedRainfall": 7,
+    "WaterHeight": 3.4,
+    "EffectiveStorage": 0.3,
+    "PercentageOfStorage": 11.11111111111111,
+    "OperationalStorage": 0,
+    "Inflow": 0,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50201",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 17.77705,
+    "EffectiveStorage": 126.2,
+    "PercentageOfStorage": 85.22420313344138,
+    "Status": -1
+  },
+  {
+    "StationNo": "50202",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 5.51149,
+    "EffectiveStorage": 34.89,
+    "PercentageOfStorage": 71.76059234882764,
+    "Status": -1
+  },
+  {
+    "StationNo": "50203",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 29.18828,
+    "EffectiveStorage": 11.48,
+    "PercentageOfStorage": 41.51898734177216,
+    "Status": -1
+  },
+  {
+    "StationNo": "50204",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 18.17,
+    "EffectiveStorage": 19.02,
+    "PercentageOfStorage": 100,
+    "Status": -1
+  },
+  {
+    "StationNo": "50205",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 3.478688,
+    "EffectiveStorage": 34.13,
+    "PercentageOfStorage": 94.91101223581758,
+    "Status": -1
+  },
+  {
+    "StationNo": "50206",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 30.59,
+    "EffectiveStorage": 23.65,
+    "PercentageOfStorage": 100,
+    "Status": -1
+  },
+  {
+    "StationNo": "50207",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 3.3435,
+    "EffectiveStorage": 38.43,
+    "PercentageOfStorage": 88.40579710144928,
+    "Status": -1
+  },
+  {
+    "StationNo": "50208",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 8.22,
+    "EffectiveStorage": 5.07,
+    "PercentageOfStorage": 100,
+    "Status": -1
+  },
+  {
+    "StationNo": "50209",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 11.85164,
+    "EffectiveStorage": 6.63,
+    "PercentageOfStorage": 80.36363636363636,
+    "Status": -1
+  },
+  {
+    "StationNo": "50210",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 2.172315,
+    "EffectiveStorage": 26.32,
+    "PercentageOfStorage": 63.559526684375754,
+    "Status": -1
+  },
+  {
+    "StationNo": "50212",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 2.69,
+    "EffectiveStorage": 38.11,
+    "PercentageOfStorage": 100,
+    "Status": -1
+  },
+  {
+    "StationNo": "50213",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 11.41092,
+    "EffectiveStorage": 0,
+    "PercentageOfStorage": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50214",
+    "Time": "2026-03-02T07:00:00",
+    "WaterHeight": 15.98556,
+    "EffectiveStorage": 9.65,
+    "PercentageOfStorage": 54.767309875141876,
+    "Status": -1
+  },
+  {
+    "StationNo": "50301",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 11.58,
+    "EffectiveStorage": 8.2664,
+    "PercentageOfStorage": 45.459244838926104,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50302",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 10.95,
+    "EffectiveStorage": 2.3544,
+    "PercentageOfStorage": 74.65043279748882,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50303",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 3.08,
+    "EffectiveStorage": 0.053,
+    "PercentageOfStorage": 11.167298777918246,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50304",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 8.11,
+    "EffectiveStorage": 1.7338,
+    "PercentageOfStorage": 75.79784908629887,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50305",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 17.39,
+    "EffectiveStorage": 2.8038,
+    "PercentageOfStorage": 67.16975707920079,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50306",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 14.93,
+    "EffectiveStorage": 2.0839,
+    "PercentageOfStorage": 45.49404008208532,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50307",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 8.01,
+    "EffectiveStorage": 0.3735,
+    "PercentageOfStorage": 29.584158415841582,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50308",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 17,
+    "EffectiveStorage": 10.5387,
+    "PercentageOfStorage": 74.68164263189597,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50309",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 17.54,
+    "EffectiveStorage": 7.2719,
+    "PercentageOfStorage": 85.5044857549355,
+    "Outflow": 0,
+    "Status": -1
+  },
+  {
+    "StationNo": "50310",
+    "Time": "2026-03-02T08:00:00",
+    "WaterHeight": 12.28,
+    "EffectiveStorage": 26.2759,
+    "PercentageOfStorage": 63.12513363331259,
+    "Outflow": 0,
+    "Status": -1
+  }
+]

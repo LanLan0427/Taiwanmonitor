@@ -562,11 +562,135 @@ const HAPPY_MOBILE_MAP_LAYERS: MapLayers = {
 };
 
 // ============================================
+// TAIWAN VARIANT (台灣即時情報)
+// ============================================
+const TAIWAN_PANELS: Record<string, PanelConfig> = {
+  map: { name: '台灣地圖', enabled: true, priority: 1 },
+  'taiwan-weather': { name: '天氣 / 颱風', enabled: true, priority: 1 },
+  'taiwan-power-eq': { name: '供電 / 地震', enabled: true, priority: 1 },
+  'taiwan-env': { name: '空品 / 水情', enabled: true, priority: 1 },
+  'taiwan-train': { name: '台鐵即時動態', enabled: true, priority: 1 },
+  'live-news': { name: '即時新聞', enabled: false, priority: 2 },
+  'live-webcams': { name: '即時攝影機', enabled: false, priority: 2 },
+  insights: { name: 'AI 洞察', enabled: false, priority: 2 },
+  intel: { name: '情報動態', enabled: false, priority: 2 },
+  'gdelt-intel': { name: '即時情報', enabled: false, priority: 2 },
+  cii: { name: '國家不穩定指數', enabled: false, priority: 2 },
+  'strategic-risk': { name: '戰略風險概覽', enabled: false, priority: 2 },
+  'strategic-posture': { name: 'AI 戰略態勢', enabled: false, priority: 2 },
+  politics: { name: '國際新聞', enabled: false, priority: 2 },
+  markets: { name: '金融市場', enabled: false, priority: 2 },
+  economic: { name: '經濟指標', enabled: false, priority: 2 },
+  tech: { name: '科技', enabled: false, priority: 2 },
+  energy: { name: '能源', enabled: false, priority: 2 },
+  crypto: { name: '加密貨幣', enabled: false, priority: 2 },
+  commodities: { name: '大宗商品', enabled: false, priority: 2 },
+  finance: { name: '財經新聞', enabled: false, priority: 2 },
+  'macro-signals': { name: '市場雷達', enabled: false, priority: 2 },
+  monitors: { name: '自訂監控', enabled: false, priority: 2 },
+  'world-clock': { name: '世界時鐘', enabled: false, priority: 2 },
+};
+
+const TAIWAN_MAP_LAYERS: MapLayers = {
+  iranAttacks: false,
+  gpsJamming: false,
+  conflicts: false,
+  bases: false,
+  cables: false,
+  pipelines: false,
+  hotspots: false,
+  ais: false,
+  nuclear: false,
+  irradiators: false,
+  sanctions: false,
+  weather: false,
+  economic: false,
+  waterways: false,
+  outages: false,
+  cyberThreats: false,
+  datacenters: false,
+  protests: false,
+  flights: true, // Used for TDX TRA Vehicles
+  military: false,
+  natural: false,
+  spaceports: false,
+  minerals: false,
+  fires: false,
+  ucdpEvents: false,
+  displacement: false,
+  climate: false,
+  startupHubs: false,
+  cloudRegions: false,
+  accelerators: false,
+  techHQs: false,
+  techEvents: false,
+  stockExchanges: false,
+  financialCenters: false,
+  centralBanks: false,
+  commodityHubs: false,
+  gulfInvestments: false,
+  positiveEvents: false,
+  kindness: false,
+  happiness: false,
+  speciesRecovery: false,
+  renewableInstallations: false,
+  tradeRoutes: false,
+  dayNight: false,
+};
+
+const TAIWAN_MOBILE_MAP_LAYERS: MapLayers = {
+  iranAttacks: false,
+  gpsJamming: false,
+  conflicts: false,
+  bases: false,
+  cables: false,
+  pipelines: false,
+  hotspots: false,
+  ais: false,
+  nuclear: false,
+  irradiators: false,
+  sanctions: false,
+  weather: false,
+  economic: false,
+  waterways: false,
+  outages: false,
+  cyberThreats: false,
+  datacenters: false,
+  protests: false,
+  flights: true, // Used for TDX TRA Vehicles
+  military: false,
+  natural: false,
+  spaceports: false,
+  minerals: false,
+  fires: false,
+  ucdpEvents: false,
+  displacement: false,
+  climate: false,
+  startupHubs: false,
+  cloudRegions: false,
+  accelerators: false,
+  techHQs: false,
+  techEvents: false,
+  stockExchanges: false,
+  financialCenters: false,
+  centralBanks: false,
+  commodityHubs: false,
+  gulfInvestments: false,
+  positiveEvents: false,
+  kindness: false,
+  happiness: false,
+  speciesRecovery: false,
+  renewableInstallations: false,
+  tradeRoutes: false,
+  dayNight: false,
+};
+
+// ============================================
 // VARIANT-AWARE EXPORTS
 // ============================================
-export const DEFAULT_PANELS = SITE_VARIANT === 'happy' ? HAPPY_PANELS : SITE_VARIANT === 'tech' ? TECH_PANELS : SITE_VARIANT === 'finance' ? FINANCE_PANELS : FULL_PANELS;
-export const DEFAULT_MAP_LAYERS = SITE_VARIANT === 'happy' ? HAPPY_MAP_LAYERS : SITE_VARIANT === 'tech' ? TECH_MAP_LAYERS : SITE_VARIANT === 'finance' ? FINANCE_MAP_LAYERS : FULL_MAP_LAYERS;
-export const MOBILE_DEFAULT_MAP_LAYERS = SITE_VARIANT === 'happy' ? HAPPY_MOBILE_MAP_LAYERS : SITE_VARIANT === 'tech' ? TECH_MOBILE_MAP_LAYERS : SITE_VARIANT === 'finance' ? FINANCE_MOBILE_MAP_LAYERS : FULL_MOBILE_MAP_LAYERS;
+export const DEFAULT_PANELS = SITE_VARIANT === 'taiwan' ? TAIWAN_PANELS : SITE_VARIANT === 'happy' ? HAPPY_PANELS : SITE_VARIANT === 'tech' ? TECH_PANELS : SITE_VARIANT === 'finance' ? FINANCE_PANELS : FULL_PANELS;
+export const DEFAULT_MAP_LAYERS = SITE_VARIANT === 'taiwan' ? TAIWAN_MAP_LAYERS : SITE_VARIANT === 'happy' ? HAPPY_MAP_LAYERS : SITE_VARIANT === 'tech' ? TECH_MAP_LAYERS : SITE_VARIANT === 'finance' ? FINANCE_MAP_LAYERS : FULL_MAP_LAYERS;
+export const MOBILE_DEFAULT_MAP_LAYERS = SITE_VARIANT === 'taiwan' ? TAIWAN_MOBILE_MAP_LAYERS : SITE_VARIANT === 'happy' ? HAPPY_MOBILE_MAP_LAYERS : SITE_VARIANT === 'tech' ? TECH_MOBILE_MAP_LAYERS : SITE_VARIANT === 'finance' ? FINANCE_MOBILE_MAP_LAYERS : FULL_MOBILE_MAP_LAYERS;
 
 /** Maps map-layer toggle keys to their data-freshness source IDs (single source of truth). */
 export const LAYER_TO_SOURCE: Partial<Record<keyof MapLayers, DataSourceId[]>> = {
@@ -680,6 +804,13 @@ export const PANEL_CATEGORY_MAP: Record<string, { labelKey: string; panelKeys: s
     labelKey: 'header.panelCatGulfMena',
     panelKeys: ['gulf-economies', 'gcc-investments', 'gccNews', 'monitors', 'world-clock'],
     variants: ['finance'],
+  },
+
+  // Taiwan variant
+  taiwanCore: {
+    labelKey: 'header.panelCatCore',
+    panelKeys: ['map', 'taiwan-weather', 'taiwan-power-eq', 'taiwan-env', 'taiwan-train'],
+    variants: ['taiwan'],
   },
 };
 

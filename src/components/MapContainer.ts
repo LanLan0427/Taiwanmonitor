@@ -26,6 +26,8 @@ import type {
   CyberThreat,
   CableHealthRecord,
 } from '@/types';
+import type { AQIStation, WRAReservoir } from '@/services/taiwan';
+import type { TDXVehicle } from '@/services/taiwan/tdx';
 import type { AirportDelayAlert } from '@/services/aviation';
 import type { DisplacementFlow } from '@/services/displacement';
 import type { Earthquake } from '@/services/earthquakes';
@@ -39,7 +41,7 @@ import type { RenewableInstallation } from '@/services/renewable-installations';
 import type { GpsJamHex } from '@/services/gps-interference';
 
 export type TimeRange = '1h' | '6h' | '24h' | '48h' | '7d' | 'all';
-export type MapView = 'global' | 'america' | 'mena' | 'eu' | 'asia' | 'latam' | 'africa' | 'oceania';
+export type MapView = 'global' | 'america' | 'mena' | 'eu' | 'asia' | 'latam' | 'africa' | 'oceania' | 'taiwan';
 
 export interface MapContainerState {
   zoom: number;
@@ -278,6 +280,28 @@ export class MapContainer {
       this.deckGLMap?.setFlightDelays(delays);
     } else {
       this.svgMap?.setFlightDelays(delays);
+    }
+  }
+
+  public setTRAVehicles(vehicles: TDXVehicle[]): void {
+    if (this.useDeckGL) {
+      this.deckGLMap?.setTRAVehicles(vehicles);
+    }
+  }
+
+  public setTaiwanAQI(stations: AQIStation[]): void {
+    if (this.useDeckGL) {
+      this.deckGLMap?.setTaiwanAQI(stations);
+    } else {
+      this.svgMap?.setTaiwanAQI(stations);
+    }
+  }
+
+  public setTaiwanReservoirs(reservoirs: WRAReservoir[]): void {
+    if (this.useDeckGL) {
+      this.deckGLMap?.setTaiwanReservoirs(reservoirs);
+    } else {
+      this.svgMap?.setTaiwanReservoirs(reservoirs);
     }
   }
 

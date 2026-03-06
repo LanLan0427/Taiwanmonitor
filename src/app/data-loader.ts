@@ -127,6 +127,12 @@ import { fetchKindnessData } from '@/services/kindness-data';
 import { getPersistentCache, setPersistentCache } from '@/services/persistent-cache';
 import type { ThreatLevel as ClientThreatLevel } from '@/services/threat-classifier';
 import type { NewsItem as ProtoNewsItem, ThreatLevel as ProtoThreatLevel } from '@/generated/client/worldmonitor/news/v1/service_client';
+import { fetchTaipowerSupply, fetchTaiwanEarthquakes, fetchTaiwanAQI, fetchTaiwanReservoirs, fetchCWAWeather, fetchCWAForecast, fetchCWATyphoon, fetchMOENVUV } from '@/services/taiwan';
+import { fetchTRAVehicles } from '@/services/taiwan/tdx';
+import { TaiwanPowerEqPanel } from '@/components/TaiwanPowerEqPanel';
+import { TaiwanEnvPanel } from '@/components/TaiwanEnvPanel';
+import { TaiwanTrainPanel } from '@/components/TaiwanTrainPanel';
+import { TaiwanWeatherPanel } from '@/components/TaiwanWeatherPanel';
 
 const PROTO_TO_CLIENT_LEVEL: Record<ProtoThreatLevel, ClientThreatLevel> = {
   THREAT_LEVEL_UNSPECIFIED: 'info',
@@ -171,7 +177,7 @@ export class DataLoaderManager implements AppModule {
     this.applyTimeRangeFilterToNewsPanels();
   }, 120);
 
-  public updateSearchIndex: () => void = () => {};
+  public updateSearchIndex: () => void = () => { };
 
   private digestBreaker = { state: 'closed' as 'closed' | 'open' | 'half-open', failures: 0, cooldownUntil: 0 };
   private readonly digestRequestTimeoutMs = 8000;
@@ -187,7 +193,7 @@ export class DataLoaderManager implements AppModule {
     this.callbacks = callbacks;
   }
 
-  init(): void {}
+  init(): void { }
 
   destroy(): void {
     stopOrefPolling();
@@ -228,7 +234,7 @@ export class DataLoaderManager implements AppModule {
   }
 
   private persistDigest(data: ListFeedDigestResponse): void {
-    setPersistentCache('digest:last-good', data).catch(() => {});
+    setPersistentCache('digest:last-good', data).catch(() => { });
   }
 
   private async loadPersistedDigest(): Promise<ListFeedDigestResponse | null> {
@@ -292,6 +298,11 @@ export class DataLoaderManager implements AppModule {
         tasks.push({ name: 'tradePolicy', task: runGuarded('tradePolicy', () => this.loadTradePolicy()) });
         tasks.push({ name: 'supplyChain', task: runGuarded('supplyChain', () => this.loadSupplyChain()) });
       }
+
+      // Taiwan variant - Taiwan-specific data
+      if (SITE_VARIANT === 'taiwan') {
+        tasks.push({ name: 'taiwanData', task: runGuarded('taiwanData', () => this.loadTaiwanData()) });
+      }
     }
 
     // Progress charts data (happy variant only)
@@ -349,7 +360,8 @@ export class DataLoaderManager implements AppModule {
     if (SITE_VARIANT !== 'happy' && this.ctx.mapLayers.ais) tasks.push({ name: 'ais', task: runGuarded('ais', () => this.loadAisSignals()) });
     if (SITE_VARIANT !== 'happy' && this.ctx.mapLayers.cables) tasks.push({ name: 'cables', task: runGuarded('cables', () => this.loadCableActivity()) });
     if (SITE_VARIANT !== 'happy' && this.ctx.mapLayers.cables) tasks.push({ name: 'cableHealth', task: runGuarded('cableHealth', () => this.loadCableHealth()) });
-    if (SITE_VARIANT !== 'happy' && this.ctx.mapLayers.flights) tasks.push({ name: 'flights', task: runGuarded('flights', () => this.loadFlightDelays()) });
+    if (SITE_VARIANT === 'taiwan' && this.ctx.mapLayers.flights) tasks.push({ name: 'traVehicles', task: runGuarded('traVehicles', () => this.loadTRAVehicles()) });
+    else if (SITE_VARIANT !== 'happy' && this.ctx.mapLayers.flights) tasks.push({ name: 'flights', task: runGuarded('flights', () => this.loadFlightDelays()) });
     if (SITE_VARIANT !== 'happy' && CYBER_LAYER_ENABLED && this.ctx.mapLayers.cyberThreats) tasks.push({ name: 'cyberThreats', task: runGuarded('cyberThreats', () => this.loadCyberThreats()) });
     if (SITE_VARIANT !== 'happy') tasks.push({ name: 'iranAttacks', task: runGuarded('iranAttacks', () => this.loadIranEvents()) });
     if (SITE_VARIANT !== 'happy' && (this.ctx.mapLayers.techEvents || SITE_VARIANT === 'tech')) tasks.push({ name: 'techEvents', task: runGuarded('techEvents', () => this.loadTechEvents()) });
@@ -400,7 +412,8 @@ export class DataLoaderManager implements AppModule {
           await this.loadProtests();
           break;
         case 'flights':
-          await this.loadFlightDelays();
+          if (SITE_VARIANT === 'taiwan') await this.loadTRAVehicles();
+          else await this.loadFlightDelays();
           break;
         case 'military':
           await this.loadMilitary();
@@ -581,7 +594,7 @@ export class DataLoaderManager implements AppModule {
               item.threat = ai;
               item.isAlert = ai.level === 'critical' || ai.level === 'high';
             }
-          }).catch(() => {});
+          }).catch(() => { });
         }
 
         checkBatchForBreakingAlerts(items);
@@ -624,7 +637,7 @@ export class DataLoaderManager implements AppModule {
               item.threat = ai;
               item.isAlert = ai.level === 'critical' || ai.level === 'high';
             }
-          }).catch(() => {});
+          }).catch(() => { });
         }
 
         checkBatchForBreakingAlerts(items);
@@ -1139,6 +1152,119 @@ export class DataLoaderManager implements AppModule {
     }
   }
 
+  async loadTaiwanData(): Promise<void> {
+    const powerEqPanel = this.ctx.panels['taiwan-power-eq'] as TaiwanPowerEqPanel | undefined;
+    const envPanel = this.ctx.panels['taiwan-env'] as TaiwanEnvPanel | undefined;
+    const weatherPanel = this.ctx.panels['taiwan-weather'] as TaiwanWeatherPanel | undefined;
+
+    const tasks = [
+      // Taipower supply data
+      (async () => {
+        try {
+          const power = await fetchTaipowerSupply();
+          if (power) {
+            powerEqPanel?.updatePower(power);
+            console.log('[Taiwan] Power data loaded:', power.lightSignal, power.reserveMargin + '%');
+          }
+        } catch (e) {
+          console.warn('[Taiwan] Power data failed:', e);
+        }
+      })(),
+      // CWA Earthquake data
+      (async () => {
+        try {
+          const quakes = await fetchTaiwanEarthquakes();
+          if (quakes.length > 0) {
+            powerEqPanel?.updateEarthquakes(quakes);
+            console.log('[Taiwan] Earthquake data loaded:', quakes.length, 'quakes');
+          }
+        } catch (e) {
+          console.warn('[Taiwan] Earthquake data failed:', e);
+        }
+      })(),
+      // AQI data
+      (async () => {
+        try {
+          const stations = await fetchTaiwanAQI();
+          if (stations.length > 0) {
+            envPanel?.updateAQI(stations);
+            this.ctx.map?.setTaiwanAQI(stations);
+            console.log('[Taiwan] AQI data loaded:', stations.length, 'stations');
+          } else {
+            envPanel?.updateAQI([]);
+          }
+        } catch (e) {
+          console.warn('[Taiwan] AQI data failed:', e);
+          envPanel?.updateAQI([]);
+        }
+      })(),
+      // Reservoir data
+      (async () => {
+        try {
+          const reservoirs = await fetchTaiwanReservoirs();
+          if (reservoirs.length > 0) {
+            envPanel?.updateReservoirs(reservoirs);
+            this.ctx.map?.setTaiwanReservoirs(reservoirs);
+            console.log('[Taiwan] Reservoir data loaded:', reservoirs.length, 'reservoirs');
+          } else {
+            envPanel?.updateReservoirs([]);
+          }
+        } catch (e) {
+          console.warn('[Taiwan] Reservoir data failed:', e);
+          envPanel?.updateReservoirs([]);
+        }
+      })(),
+      // CWA Weather observation
+      (async () => {
+        try {
+          const weather = await fetchCWAWeather();
+          if (weather.length > 0) {
+            weatherPanel?.updateWeather(weather);
+            console.log('[Taiwan] Weather data loaded:', weather.length, 'stations');
+          }
+        } catch (e) {
+          console.warn('[Taiwan] Weather data failed:', e);
+        }
+      })(),
+      // CWA 36-hour Forecast
+      (async () => {
+        try {
+          const forecast = await fetchCWAForecast();
+          if (forecast.length > 0) {
+            weatherPanel?.updateForecast(forecast);
+            console.log('[Taiwan] Forecast data loaded:', forecast.length, 'locations');
+          }
+        } catch (e) {
+          console.warn('[Taiwan] Forecast data failed:', e);
+        }
+      })(),
+      // CWA Typhoon
+      (async () => {
+        try {
+          const typhoon = await fetchCWATyphoon();
+          weatherPanel?.updateTyphoon(typhoon);
+          console.log('[Taiwan] Typhoon data loaded:', typhoon.active ? typhoon.name : 'no active typhoon');
+        } catch (e) {
+          console.warn('[Taiwan] Typhoon data failed:', e);
+        }
+      })(),
+      // MOENV UV
+      (async () => {
+        try {
+          const uv = await fetchMOENVUV();
+          if (uv.length > 0) {
+            envPanel?.updateUV?.(uv);
+            console.log('[Taiwan] UV data loaded:', uv.length, 'stations');
+          }
+        } catch (e) {
+          console.warn('[Taiwan] UV data failed:', e);
+        }
+      })(),
+    ];
+
+    await Promise.allSettled(tasks);
+  }
+
   async loadIntelligenceSignals(): Promise<void> {
     const tasks: Promise<void>[] = [];
 
@@ -1240,7 +1366,7 @@ export class DataLoaderManager implements AppModule {
         };
         fetchUSNIFleetReport().then((report) => {
           if (report) this.ctx.intelligenceCache.usniFleet = report;
-        }).catch(() => {});
+        }).catch(() => { });
         ingestFlights(flightData.flights);
         ingestVessels(vesselData.vessels);
         ingestMilitaryForCII(flightData.flights, vesselData.vessels);
@@ -1680,6 +1806,30 @@ export class DataLoaderManager implements AppModule {
     }
   }
 
+  async loadTRAVehicles(): Promise<void> {
+    const trainPanel = this.ctx.panels['taiwan-train'] as TaiwanTrainPanel | undefined;
+    try {
+      const vehicles = await fetchTRAVehicles();
+      this.ctx.map?.setTRAVehicles(vehicles);
+      this.ctx.map?.setLayerReady('flights', vehicles.length > 0);
+      if (vehicles.length > 0) {
+        trainPanel?.updateTRA(vehicles);
+      } else {
+        trainPanel?.updateTRA([]);
+      }
+      this.ctx.statusPanel?.updateFeed('TRA Trains', {
+        status: 'ok',
+        itemCount: vehicles.length,
+      });
+      this.ctx.statusPanel?.updateApi('TDX', { status: 'ok' });
+    } catch (error) {
+      this.ctx.map?.setLayerReady('flights', false);
+      trainPanel?.updateTRA([]);
+      this.ctx.statusPanel?.updateFeed('TRA Trains', { status: 'error', errorMessage: String(error) });
+      this.ctx.statusPanel?.updateApi('TDX', { status: 'error' });
+    }
+  }
+
   async loadMilitary(): Promise<void> {
     if (this.ctx.intelligenceCache.military) {
       const { flights, flightClusters, vessels, vesselClusters } = this.ctx.intelligenceCache.military;
@@ -1716,7 +1866,7 @@ export class DataLoaderManager implements AppModule {
       };
       fetchUSNIFleetReport().then((report) => {
         if (report) this.ctx.intelligenceCache.usniFleet = report;
-      }).catch(() => {});
+      }).catch(() => { });
       this.ctx.map?.setMilitaryFlights(flightData.flights, flightData.clusters);
       this.ctx.map?.setMilitaryVessels(vesselData.vessels, vesselData.clusters);
       ingestFlights(flightData.flights);
@@ -2198,7 +2348,7 @@ export class DataLoaderManager implements AppModule {
     setPersistentCache(
       DataLoaderManager.HAPPY_ITEMS_CACHE_KEY,
       this.ctx.happyAllItems.map(item => ({ ...item, pubDate: item.pubDate.getTime() }))
-    ).catch(() => {});
+    ).catch(() => { });
   }
 
   private async loadPositiveEvents(): Promise<void> {

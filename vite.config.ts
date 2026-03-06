@@ -2,6 +2,7 @@ import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { resolve, dirname, extname } from 'path';
 import { mkdir, readFile, writeFile } from 'fs/promises';
+import { readFileSync } from 'fs';
 import { brotliCompress } from 'zlib';
 import { promisify } from 'util';
 import pkg from './package.json';
@@ -196,50 +197,50 @@ function sebufApiPlugin(): Plugin {
       givingServerMod, givingHandlerMod,
       tradeServerMod, tradeHandlerMod,
     ] = await Promise.all([
-        import('./server/router'),
-        import('./server/cors'),
-        import('./server/error-mapper'),
-        import('./src/generated/server/worldmonitor/seismology/v1/service_server'),
-        import('./server/worldmonitor/seismology/v1/handler'),
-        import('./src/generated/server/worldmonitor/wildfire/v1/service_server'),
-        import('./server/worldmonitor/wildfire/v1/handler'),
-        import('./src/generated/server/worldmonitor/climate/v1/service_server'),
-        import('./server/worldmonitor/climate/v1/handler'),
-        import('./src/generated/server/worldmonitor/prediction/v1/service_server'),
-        import('./server/worldmonitor/prediction/v1/handler'),
-        import('./src/generated/server/worldmonitor/displacement/v1/service_server'),
-        import('./server/worldmonitor/displacement/v1/handler'),
-        import('./src/generated/server/worldmonitor/aviation/v1/service_server'),
-        import('./server/worldmonitor/aviation/v1/handler'),
-        import('./src/generated/server/worldmonitor/research/v1/service_server'),
-        import('./server/worldmonitor/research/v1/handler'),
-        import('./src/generated/server/worldmonitor/unrest/v1/service_server'),
-        import('./server/worldmonitor/unrest/v1/handler'),
-        import('./src/generated/server/worldmonitor/conflict/v1/service_server'),
-        import('./server/worldmonitor/conflict/v1/handler'),
-        import('./src/generated/server/worldmonitor/maritime/v1/service_server'),
-        import('./server/worldmonitor/maritime/v1/handler'),
-        import('./src/generated/server/worldmonitor/cyber/v1/service_server'),
-        import('./server/worldmonitor/cyber/v1/handler'),
-        import('./src/generated/server/worldmonitor/economic/v1/service_server'),
-        import('./server/worldmonitor/economic/v1/handler'),
-        import('./src/generated/server/worldmonitor/infrastructure/v1/service_server'),
-        import('./server/worldmonitor/infrastructure/v1/handler'),
-        import('./src/generated/server/worldmonitor/market/v1/service_server'),
-        import('./server/worldmonitor/market/v1/handler'),
-        import('./src/generated/server/worldmonitor/news/v1/service_server'),
-        import('./server/worldmonitor/news/v1/handler'),
-        import('./src/generated/server/worldmonitor/intelligence/v1/service_server'),
-        import('./server/worldmonitor/intelligence/v1/handler'),
-        import('./src/generated/server/worldmonitor/military/v1/service_server'),
-        import('./server/worldmonitor/military/v1/handler'),
-        import('./src/generated/server/worldmonitor/positive_events/v1/service_server'),
-        import('./server/worldmonitor/positive-events/v1/handler'),
-        import('./src/generated/server/worldmonitor/giving/v1/service_server'),
-        import('./server/worldmonitor/giving/v1/handler'),
-        import('./src/generated/server/worldmonitor/trade/v1/service_server'),
-        import('./server/worldmonitor/trade/v1/handler'),
-      ]);
+      import('./server/router'),
+      import('./server/cors'),
+      import('./server/error-mapper'),
+      import('./src/generated/server/worldmonitor/seismology/v1/service_server'),
+      import('./server/worldmonitor/seismology/v1/handler'),
+      import('./src/generated/server/worldmonitor/wildfire/v1/service_server'),
+      import('./server/worldmonitor/wildfire/v1/handler'),
+      import('./src/generated/server/worldmonitor/climate/v1/service_server'),
+      import('./server/worldmonitor/climate/v1/handler'),
+      import('./src/generated/server/worldmonitor/prediction/v1/service_server'),
+      import('./server/worldmonitor/prediction/v1/handler'),
+      import('./src/generated/server/worldmonitor/displacement/v1/service_server'),
+      import('./server/worldmonitor/displacement/v1/handler'),
+      import('./src/generated/server/worldmonitor/aviation/v1/service_server'),
+      import('./server/worldmonitor/aviation/v1/handler'),
+      import('./src/generated/server/worldmonitor/research/v1/service_server'),
+      import('./server/worldmonitor/research/v1/handler'),
+      import('./src/generated/server/worldmonitor/unrest/v1/service_server'),
+      import('./server/worldmonitor/unrest/v1/handler'),
+      import('./src/generated/server/worldmonitor/conflict/v1/service_server'),
+      import('./server/worldmonitor/conflict/v1/handler'),
+      import('./src/generated/server/worldmonitor/maritime/v1/service_server'),
+      import('./server/worldmonitor/maritime/v1/handler'),
+      import('./src/generated/server/worldmonitor/cyber/v1/service_server'),
+      import('./server/worldmonitor/cyber/v1/handler'),
+      import('./src/generated/server/worldmonitor/economic/v1/service_server'),
+      import('./server/worldmonitor/economic/v1/handler'),
+      import('./src/generated/server/worldmonitor/infrastructure/v1/service_server'),
+      import('./server/worldmonitor/infrastructure/v1/handler'),
+      import('./src/generated/server/worldmonitor/market/v1/service_server'),
+      import('./server/worldmonitor/market/v1/handler'),
+      import('./src/generated/server/worldmonitor/news/v1/service_server'),
+      import('./server/worldmonitor/news/v1/handler'),
+      import('./src/generated/server/worldmonitor/intelligence/v1/service_server'),
+      import('./server/worldmonitor/intelligence/v1/handler'),
+      import('./src/generated/server/worldmonitor/military/v1/service_server'),
+      import('./server/worldmonitor/military/v1/handler'),
+      import('./src/generated/server/worldmonitor/positive_events/v1/service_server'),
+      import('./server/worldmonitor/positive-events/v1/handler'),
+      import('./src/generated/server/worldmonitor/giving/v1/service_server'),
+      import('./server/worldmonitor/giving/v1/handler'),
+      import('./src/generated/server/worldmonitor/trade/v1/service_server'),
+      import('./server/worldmonitor/trade/v1/handler'),
+    ]);
 
     const serverOptions = { onError: errorMod.mapErrorToResponse };
     const allRoutes = [
@@ -328,7 +329,7 @@ function sebufApiPlugin(): Plugin {
           if (req.method === 'OPTIONS') {
             res.statusCode = 204;
             for (const [key, value] of Object.entries(corsHeaders)) {
-              res.setHeader(key, value);
+              res.setHeader(key, value as string);
             }
             res.end();
             return;
@@ -339,7 +340,7 @@ function sebufApiPlugin(): Plugin {
             res.statusCode = 403;
             res.setHeader('Content-Type', 'application/json');
             for (const [key, value] of Object.entries(corsHeaders)) {
-              res.setHeader(key, value);
+              res.setHeader(key, value as string);
             }
             res.end(JSON.stringify({ error: 'Origin not allowed' }));
             return;
@@ -358,7 +359,7 @@ function sebufApiPlugin(): Plugin {
               res.setHeader('Content-Type', 'application/json');
             }
             for (const [key, value] of Object.entries(corsHeaders)) {
-              res.setHeader(key, value);
+              res.setHeader(key, value as string);
             }
             res.end(JSON.stringify({ error: res.statusCode === 405 ? 'Method not allowed' : 'Not found' }));
             return;
@@ -373,7 +374,7 @@ function sebufApiPlugin(): Plugin {
             res.setHeader(key, value);
           });
           for (const [key, value] of Object.entries(corsHeaders)) {
-            res.setHeader(key, value);
+            res.setHeader(key, value as string);
           }
           res.end(await response.text());
         } catch (err) {
@@ -567,6 +568,318 @@ function youtubeLivePlugin(): Plugin {
   };
 }
 
+function taiwanDataPlugin(): Plugin {
+  const cache = new Map<string, { data: unknown; ts: number }>();
+  const CACHE_TTL = 5 * 60 * 1000;
+
+  // Manually parse .env since process.env doesn't map them reliably in configureServer middleware
+  let envContent = '';
+  try {
+    envContent = readFileSync(resolve(process.cwd(), '.env'), 'utf-8');
+  } catch (e) { }
+
+  const getEnvVar = (keyword: string) => {
+    const match = envContent.match(new RegExp(`${keyword}="?([^"\\r\\n]+)"?`));
+    return match ? match[1].trim() : (process.env[keyword] || '');
+  };
+
+  return {
+    name: 'taiwan-data',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/taiwan/data')) return next();
+
+        const url = new URL(req.url, 'http://localhost');
+        const type = url.searchParams.get('type') || 'power';
+
+        const cached = cache.get(type);
+        if (cached && Date.now() - cached.ts < CACHE_TTL) {
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          res.end(JSON.stringify(cached.data));
+          return;
+        }
+
+        try {
+          let data: unknown;
+
+          if (type === 'power') {
+            const r = await fetch('https://www.taipower.com.tw/d006/loadGraph/loadGraph/data/genary.json', {
+              headers: { 'User-Agent': 'TaiwanMonitor/1.0', 'Accept': 'application/json' },
+            });
+            if (!r.ok) throw new Error(`Taipower HTTP ${r.status}`);
+            data = await r.json();
+          } else if (type === 'earthquake') {
+            const cwaKey = url.searchParams.get('cwa_key') || getEnvVar('VITE_CWA_API_KEY') || getEnvVar('CWA_API_KEY') || '';
+            if (!cwaKey) {
+              data = { earthquakes: [], error: 'CWA_API_KEY not configured' };
+            } else {
+              const urls = [
+                `https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0015-001?Authorization=${cwaKey}&limit=10&format=JSON`,
+                `https://opendata.cwa.gov.tw/api/v1/rest/datastore/E-A0016-001?Authorization=${cwaKey}&limit=5&format=JSON`,
+              ];
+              const results = await Promise.allSettled(urls.map(u => fetch(u).then(r => r.json())));
+              const earthquakes: unknown[] = [];
+              const debugPayload: unknown[] = [];
+              for (const result of results) {
+                if (result.status === 'fulfilled') {
+                  debugPayload.push(result.value);
+                  if (result.value?.records?.Earthquake) {
+                    earthquakes.push(...result.value.records.Earthquake);
+                  }
+                } else {
+                  debugPayload.push({ error: result.reason });
+                }
+              }
+              data = { earthquakes, debug: debugPayload, updatedAt: new Date().toISOString() };
+            }
+          } else if (type === 'aqi') {
+            let raw: any = null;
+            try {
+              const aqiKey = url.searchParams.get('moenv_key') || getEnvVar('VITE_MOENV_API_KEY') || getEnvVar('MOENV_API_KEY') || 'e8dd42e6-9b8b-43f8-991e-b3dee723a52d';
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 8000);
+              const r = await fetch(`https://data.moenv.gov.tw/api/v2/aqx_p_432?api_key=${aqiKey}&limit=100&sort=ImportDate%20desc&format=JSON`, { signal: controller.signal });
+              clearTimeout(timeoutId);
+              if (!r.ok) {
+                console.error(`[taiwan-data] AQI HTTP ${r.status}`);
+              } else {
+                raw = await r.json();
+              }
+            } catch (e: any) {
+              console.error(`[taiwan-data] AQI Fetch Error:`, e.message);
+            }
+            const stationsArray = Array.isArray(raw) ? raw : (raw?.records || []);
+            data = { stations: stationsArray, updatedAt: new Date().toISOString() };
+          } else if (type === 'reservoir') {
+            try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 8000);
+              const [rtRes, stRes] = await Promise.all([
+                fetch('https://fhy.wra.gov.tw/WraApi/v1/Reservoir/RealTimeInfo', { signal: controller.signal }),
+                fetch('https://fhy.wra.gov.tw/WraApi/v1/Reservoir/Station', { signal: controller.signal })
+              ]);
+              clearTimeout(timeoutId);
+
+              if (!rtRes.ok || !stRes.ok) {
+                console.error(`[taiwan-data] Reservoir HTTP Status: RT ${rtRes.status}, Station ${stRes.status}`);
+              }
+              const rawRt = await rtRes.json() as any[];
+              const rawSt = await stRes.json() as any[];
+
+              const stationMap = new Map();
+              if (Array.isArray(rawSt)) {
+                rawSt.forEach(s => stationMap.set(s.StationNo, s));
+              }
+
+              const merged = (Array.isArray(rawRt) ? rawRt : []).map(r => {
+                const st = stationMap.get(r.StationNo);
+                return {
+                  ...r,
+                  StationName: st ? st.StationName : '未知測站',
+                  Longitude: st ? st.Longitude : 120.9,
+                  Latitude: st ? st.Latitude : 23.7
+                };
+              });
+
+              data = { reservoirs: merged, updatedAt: new Date().toISOString() };
+            } catch (e: any) {
+              console.error(`[taiwan-data] Reservoir Fetch Error:`, e.message);
+              data = { reservoirs: [], error: e.message, updatedAt: new Date().toISOString() };
+            }
+          } else if (type === 'weather') {
+            const cwaKey = url.searchParams.get('cwa_key') || getEnvVar('VITE_CWA_API_KEY') || getEnvVar('CWA_API_KEY') || '';
+            try {
+              const r = await fetch(`https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=${cwaKey}&format=JSON`);
+              if (!r.ok) throw new Error(`CWA Weather HTTP ${r.status}`);
+              const raw = await r.json();
+              data = { stations: raw?.records?.Station || [], updatedAt: new Date().toISOString() };
+            } catch (e: any) {
+              console.error('[taiwan-data] Weather Error:', e.message);
+              data = { stations: [], error: e.message };
+            }
+          } else if (type === 'forecast') {
+            const cwaKey = url.searchParams.get('cwa_key') || getEnvVar('VITE_CWA_API_KEY') || getEnvVar('CWA_API_KEY') || '';
+            try {
+              const r = await fetch(`https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${cwaKey}&format=JSON`);
+              if (!r.ok) throw new Error(`CWA Forecast HTTP ${r.status}`);
+              const raw = await r.json();
+              data = { locations: raw?.records?.location || [], updatedAt: new Date().toISOString() };
+            } catch (e: any) {
+              console.error('[taiwan-data] Forecast Error:', e.message);
+              data = { locations: [], error: e.message };
+            }
+          } else if (type === 'typhoon') {
+            const cwaKey = url.searchParams.get('cwa_key') || getEnvVar('VITE_CWA_API_KEY') || getEnvVar('CWA_API_KEY') || '';
+            try {
+              const r = await fetch(`https://opendata.cwa.gov.tw/api/v1/rest/datastore/W-C0034-005?Authorization=${cwaKey}&format=JSON`);
+              if (!r.ok) throw new Error(`CWA Typhoon HTTP ${r.status}`);
+              const raw = await r.json();
+              data = { ...raw?.records, updatedAt: new Date().toISOString() };
+            } catch (e: any) {
+              console.error('[taiwan-data] Typhoon Error:', e.message);
+              data = { error: e.message };
+            }
+          } else if (type === 'uv') {
+            const moenvKey = url.searchParams.get('moenv_key') || getEnvVar('VITE_MOENV_API_KEY') || getEnvVar('MOENV_API_KEY') || '';
+            try {
+              const r = await fetch(`https://data.moenv.gov.tw/api/v2/uv_s_01?api_key=${moenvKey}&limit=100&sort=publishtime%20desc&format=JSON`);
+              if (!r.ok) throw new Error(`MOENV UV HTTP ${r.status}`);
+              const raw = await r.json();
+              const records = Array.isArray(raw) ? raw : (raw?.records || []);
+              data = { stations: records, updatedAt: new Date().toISOString() };
+            } catch (e: any) {
+              console.error('[taiwan-data] UV Error:', e.message);
+              data = { stations: [], error: e.message };
+            }
+          } else {
+            data = { error: `Unknown type: ${type}` };
+          }
+
+          cache.set(type, { data, ts: Date.now() });
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          res.end(JSON.stringify(data));
+        } catch (error: any) {
+          console.error(`[taiwan-data] Error (${type}):`, error.message);
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: error.message }));
+        }
+      });
+    },
+  };
+}
+
+function taiwanTdxPlugin(): Plugin {
+  const cache = new Map<string, { data: any; ts: number }>();
+
+  // Vite's configureServer does NOT auto-inject .env vars into process.env
+  // so we manually read the .env file for TDX credentials
+  let envClientId: string | undefined;
+  let envClientSecret: string | undefined;
+  try {
+    const envFile = readFileSync(resolve(process.cwd(), '.env'), 'utf-8');
+    const idMatch = envFile.match(/VITE_TDX_CLIENT_ID="?([^"\n\r]+)"?/);
+    const secMatch = envFile.match(/VITE_TDX_CLIENT_SECRET="?([^"\n\r]+)"?/);
+    envClientId = idMatch?.[1]?.trim();
+    envClientSecret = secMatch?.[1]?.trim();
+  } catch { /* .env might not exist in production */ }
+
+  function getCached(key: string, ttl: number): any {
+    const entry = cache.get(key);
+    if (entry && Date.now() - entry.ts < ttl) return entry.data;
+    return null;
+  }
+  async function fetchTDXToken(): Promise<string | null> {
+    const cached = getCached('tdx-token', 12 * 60 * 60 * 1000);
+    if (cached) return cached;
+    const clientId = process.env.VITE_TDX_CLIENT_ID || process.env.TDX_CLIENT_ID || envClientId;
+    const clientSecret = process.env.VITE_TDX_CLIENT_SECRET || process.env.TDX_CLIENT_SECRET || envClientSecret;
+    console.log('[TDX Debug] clientId present:', !!clientId, 'len:', clientId?.length, 'clientSecret present:', !!clientSecret, 'len:', clientSecret?.length);
+    if (!clientId || !clientSecret) { console.error('[TDX] Missing credentials'); return null; }
+    try {
+      const res = await fetch('https://tdx.transportdata.tw/auth/realms/TDXConnect/protocol/openid-connect/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ grant_type: 'client_credentials', client_id: clientId, client_secret: clientSecret })
+      });
+      console.log('[TDX Debug] Token response status:', res.status);
+      if (!res.ok) { const txt = await res.text(); console.error('[TDX] Token error:', txt); return null; }
+      const data = await res.json();
+      if (data.access_token) {
+        cache.set('tdx-token', { data: data.access_token, ts: Date.now() });
+        console.log('[TDX] Token acquired successfully');
+        return data.access_token;
+      }
+      console.error('[TDX] No access_token in response:', data);
+      return null;
+    } catch (e) { console.error('[TDX] Token fetch exception:', e); return null; }
+  }
+  async function fetchTRAStations(token: string): Promise<any> {
+    const cached = getCached('tra-stations', 24 * 60 * 60 * 1000);
+    if (cached) return cached;
+    try {
+      const res = await fetch('https://tdx.transportdata.tw/api/basic/v3/Rail/TRA/Station?$format=JSON', { headers: { 'Authorization': `Bearer ${token}` } });
+      const data = await res.json();
+      const stMap: Record<string, any> = {};
+      if (data?.Stations) {
+        data.Stations.forEach((s: any) => {
+          stMap[s.StationID] = { lon: s.StationPosition.PositionLon, lat: s.StationPosition.PositionLat, name: s.StationName.Zh_tw, enName: s.StationName.En };
+        });
+      }
+      cache.set('tra-stations', { data: stMap, ts: Date.now() });
+      return stMap;
+    } catch { return {}; }
+  }
+  return {
+    name: 'taiwan-tdx',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/taiwan/tdx')) return next();
+        const url = new URL(req.url, 'http://localhost');
+        const type = url.searchParams.get('type') || 'tra';
+        if (type === 'tra') {
+          const cachedCombined = getCached('tra-live-combined', 30 * 1000);
+          if (cachedCombined) {
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(cachedCombined));
+            return;
+          }
+          const token = await fetchTDXToken();
+          if (!token) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ vehicles: [], error: 'TDX Auth Failed' }));
+            return;
+          }
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            const [stations, liveRes] = await Promise.all([
+              fetchTRAStations(token),
+              fetch('https://tdx.transportdata.tw/api/basic/v3/Rail/TRA/TrainLiveBoard?$format=JSON', { headers: { 'Authorization': `Bearer ${token}` }, signal: controller.signal })
+            ]);
+            clearTimeout(timeoutId);
+            if (!liveRes.ok) {
+              console.error(`[TDX] LiveBoard HTTP ${liveRes.status}`);
+              const errText = await liveRes.text().catch(() => '');
+              console.error(`[TDX] LiveBoard error body:`, errText.substring(0, 200));
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ vehicles: [], error: `TDX LiveBoard HTTP ${liveRes.status}`, updatedAt: new Date().toISOString() }));
+              return;
+            }
+            const liveData = await liveRes.json();
+            const liveboards = liveData.TrainLiveBoards || [];
+            console.log(`[TDX] LiveBoard fetched: ${liveboards.length} entries`);
+            const vehicles = liveboards.map((lb: any) => {
+              const st = stations[lb.StationID];
+              if (!st) return null;
+              return {
+                id: lb.TrainNo, line: 'TRA', type: lb.TrainTypeName?.Zh_tw || '火車', delay: lb.DelayTime,
+                station: st.name, direction: lb.Direction, status: lb.TrainStationStatus,
+                lat: st.lat, lon: st.lon, updated: lb.UpdateTime
+              };
+            }).filter(Boolean);
+            const result = { vehicles, updatedAt: new Date().toISOString() };
+            cache.set('tra-live-combined', { data: result, ts: Date.now() });
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(result));
+          } catch (e: any) {
+            console.error('[TDX] TRA fetch error:', e.message);
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ vehicles: [], error: e.name === 'AbortError' ? 'TDX API Timeout (10s)' : e.message, updatedAt: new Date().toISOString() }));
+          }
+        } else {
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ vehicles: [], error: 'Unknown TDX type' }));
+        }
+      });
+    }
+  };
+}
+
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
@@ -576,6 +889,8 @@ export default defineConfig({
     polymarketPlugin(),
     rssProxyPlugin(),
     youtubeLivePlugin(),
+    taiwanDataPlugin(),
+    taiwanTdxPlugin(),
     sebufApiPlugin(),
     brotliPrecompressPlugin(),
     VitePWA({
