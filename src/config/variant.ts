@@ -1,11 +1,19 @@
+const VALID_VARIANTS = new Set(['tech', 'full', 'finance', 'happy', 'taiwan']);
+
+function isValidVariant(value: string | null | undefined): value is string {
+  return !!value && VALID_VARIANTS.has(value);
+}
+
 export const SITE_VARIANT: string = (() => {
   if (typeof window === 'undefined') return import.meta.env.VITE_VARIANT || 'full';
+
+  const envVariant = import.meta.env.VITE_VARIANT;
 
   const isTauri = '__TAURI_INTERNALS__' in window || '__TAURI__' in window;
   if (isTauri) {
     const stored = localStorage.getItem('worldmonitor-variant');
-    if (stored === 'tech' || stored === 'full' || stored === 'finance' || stored === 'happy' || stored === 'taiwan') return stored;
-    return import.meta.env.VITE_VARIANT || 'full';
+    if (isValidVariant(stored)) return stored;
+    return envVariant || 'full';
   }
 
   const h = location.hostname;
@@ -15,9 +23,10 @@ export const SITE_VARIANT: string = (() => {
   if (h.startsWith('taiwan.')) return 'taiwan';
 
   if (h === 'localhost' || h === '127.0.0.1') {
+    if (isValidVariant(envVariant)) return envVariant;
     const stored = localStorage.getItem('worldmonitor-variant');
-    if (stored === 'tech' || stored === 'full' || stored === 'finance' || stored === 'happy' || stored === 'taiwan') return stored;
-    return import.meta.env.VITE_VARIANT || 'full';
+    if (isValidVariant(stored)) return stored;
+    return 'full';
   }
 
   return 'full';
