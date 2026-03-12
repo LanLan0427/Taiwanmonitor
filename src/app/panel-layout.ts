@@ -852,7 +852,8 @@ export class PanelLayoutManager implements AppModule {
     const { view, zoom, lat, lon, timeRange, layers } = this.ctx.initialUrlState;
 
     if (view) {
-      this.ctx.map.setView(view);
+      const effectiveView = SITE_VARIANT === 'taiwan' && view !== 'taiwan' ? 'taiwan' : view;
+      this.ctx.map.setView(effectiveView);
     }
 
     if (timeRange) {
