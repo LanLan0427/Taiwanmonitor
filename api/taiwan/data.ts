@@ -231,6 +231,25 @@ async function fetchMOENVUV(apiKey?: string): Promise<unknown> {
     }
 }
 
+// Taipower Power Outage data
+async function fetchTaipowerOutage(): Promise<unknown> {
+    const cached = getCached('taipower-outage');
+    if (cached) return cached;
+
+    try {
+        const res = await fetch('https://www.taipower.com.tw/d006/loadGraph/loadGraph/data/pstoutage.json', {
+            headers: { 'Accept': 'application/json', 'User-Agent': 'TaiwanMonitor/1.0' },
+        });
+        if (!res.ok) throw new Error(`Taipower Outage HTTP ${res.status}`);
+        const raw = await res.json();
+        const data = { outages: raw, updatedAt: new Date().toISOString() };
+        setCache('taipower-outage', data);
+        return data;
+    } catch (e) {
+        return { outages: [], error: String(e) };
+    }
+}
+
 export const config = { runtime: 'edge' };
 
 export default async function handler(req: Request): Promise<Response> {
@@ -265,6 +284,9 @@ export default async function handler(req: Request): Promise<Response> {
             break;
         case 'uv':
             data = await fetchMOENVUV(moenvKey);
+            break;
+        case 'outage':
+            data = await fetchTaipowerOutage();
             break;
         default:
             data = { error: `Unknown type: ${type}` };

@@ -569,7 +569,10 @@ const TAIWAN_PANELS: Record<string, PanelConfig> = {
   'taiwan-weather': { name: '天氣 / 颱風', enabled: true, priority: 1 },
   'taiwan-power-eq': { name: '供電 / 地震', enabled: true, priority: 1 },
   'taiwan-env': { name: '空品 / 水情', enabled: true, priority: 1 },
-  'taiwan-train': { name: '台鐵即時動態', enabled: true, priority: 1 },
+  'taiwan-train': { name: '鐵路即時動態', enabled: true, priority: 1 },
+  'taiwan-flight': { name: '機場航班', enabled: true, priority: 1 },
+  'taiwan-highway': { name: '國道路況', enabled: true, priority: 1 },
+  'taiwan-youbike': { name: 'YouBike 站點', enabled: true, priority: 1 },
   'live-news': { name: '即時新聞', enabled: false, priority: 2 },
   'live-webcams': { name: '即時攝影機', enabled: false, priority: 2 },
   insights: { name: 'AI 洞察', enabled: false, priority: 2 },
@@ -809,7 +812,7 @@ export const PANEL_CATEGORY_MAP: Record<string, { labelKey: string; panelKeys: s
   // Taiwan variant
   taiwanCore: {
     labelKey: 'header.panelCatCore',
-    panelKeys: ['map', 'taiwan-weather', 'taiwan-power-eq', 'taiwan-env', 'taiwan-train'],
+    panelKeys: ['map', 'taiwan-weather', 'taiwan-power-eq', 'taiwan-env', 'taiwan-train', 'taiwan-flight', 'taiwan-highway', 'taiwan-youbike'],
     variants: ['taiwan'],
   },
 };

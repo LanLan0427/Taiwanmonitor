@@ -127,12 +127,15 @@ import { fetchKindnessData } from '@/services/kindness-data';
 import { getPersistentCache, setPersistentCache } from '@/services/persistent-cache';
 import type { ThreatLevel as ClientThreatLevel } from '@/services/threat-classifier';
 import type { NewsItem as ProtoNewsItem, ThreatLevel as ProtoThreatLevel } from '@/generated/client/worldmonitor/news/v1/service_client';
-import { fetchTaipowerSupply, fetchTaiwanEarthquakes, fetchTaiwanAQI, fetchTaiwanReservoirs, fetchCWAWeather, fetchCWAForecast, fetchCWATyphoon, fetchMOENVUV } from '@/services/taiwan';
-import { fetchTRAVehicles } from '@/services/taiwan/tdx';
+import { fetchTaipowerSupply, fetchTaiwanEarthquakes, fetchTaiwanAQI, fetchTaiwanReservoirs, fetchCWAWeather, fetchCWAForecast, fetchCWATyphoon, fetchMOENVUV, fetchTaipowerOutage } from '@/services/taiwan';
+import { fetchTRAVehicles, fetchTHSRTrains, fetchTaiwanFlights, fetchHighwayTraffic, fetchYouBikeStations } from '@/services/taiwan/tdx';
 import { TaiwanPowerEqPanel } from '@/components/TaiwanPowerEqPanel';
 import { TaiwanEnvPanel } from '@/components/TaiwanEnvPanel';
 import { TaiwanTrainPanel } from '@/components/TaiwanTrainPanel';
 import { TaiwanWeatherPanel } from '@/components/TaiwanWeatherPanel';
+import { TaiwanFlightPanel } from '@/components/TaiwanFlightPanel';
+import { TaiwanHighwayPanel } from '@/components/TaiwanHighwayPanel';
+import { TaiwanYouBikePanel } from '@/components/TaiwanYouBikePanel';
 
 const PROTO_TO_CLIENT_LEVEL: Record<ProtoThreatLevel, ClientThreatLevel> = {
   THREAT_LEVEL_UNSPECIFIED: 'info',
@@ -302,6 +305,11 @@ export class DataLoaderManager implements AppModule {
       // Taiwan variant - Taiwan-specific data
       if (SITE_VARIANT === 'taiwan') {
         tasks.push({ name: 'taiwanData', task: runGuarded('taiwanData', () => this.loadTaiwanData()) });
+        // Stagger TDX calls to avoid rate limit (429)
+        const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+        tasks.push({ name: 'taiwanFlights', task: runGuarded('taiwanFlights', async () => { await delay(3000); return this.loadTaiwanFlights(); }) });
+        tasks.push({ name: 'taiwanHighway', task: runGuarded('taiwanHighway', async () => { await delay(6000); return this.loadHighwayTraffic(); }) });
+        tasks.push({ name: 'taiwanYouBike', task: runGuarded('taiwanYouBike', async () => { await delay(9000); return this.loadYouBikeData(); }) });
       }
     }
 
@@ -1260,9 +1268,56 @@ export class DataLoaderManager implements AppModule {
           console.warn('[Taiwan] UV data failed:', e);
         }
       })(),
+      // Taipower Outage
+      (async () => {
+        try {
+          const outages = await fetchTaipowerOutage();
+          powerEqPanel?.updateOutages(outages);
+          console.log('[Taiwan] Outage data loaded:', outages.length, 'events');
+        } catch (e) {
+          console.warn('[Taiwan] Outage data failed:', e);
+          powerEqPanel?.updateOutages([]);
+        }
+      })(),
     ];
 
     await Promise.allSettled(tasks);
+  }
+
+  async loadTaiwanFlights(): Promise<void> {
+    const flightPanel = this.ctx.panels['taiwan-flight'] as TaiwanFlightPanel | undefined;
+    try {
+      const flights = await fetchTaiwanFlights();
+      flightPanel?.updateFlights(flights);
+      console.log('[Taiwan] Flight data loaded:', flights.length, 'flights');
+    } catch (e) {
+      console.warn('[Taiwan] Flight data failed:', e);
+      flightPanel?.updateFlights([]);
+    }
+  }
+
+  async loadHighwayTraffic(): Promise<void> {
+    const highwayPanel = this.ctx.panels['taiwan-highway'] as TaiwanHighwayPanel | undefined;
+    try {
+      const sections = await fetchHighwayTraffic();
+      highwayPanel?.updateSections(sections);
+      console.log('[Taiwan] Highway data loaded:', sections.length, 'sections');
+    } catch (e) {
+      console.warn('[Taiwan] Highway data failed:', e);
+      highwayPanel?.updateSections([]);
+    }
+  }
+
+  async loadYouBikeData(): Promise<void> {
+    const youBikePanel = this.ctx.panels['taiwan-youbike'] as TaiwanYouBikePanel | undefined;
+    try {
+      const stations = await fetchYouBikeStations();
+      youBikePanel?.updateStations(stations);
+      console.log('[Taiwan] YouBike data loaded:', stations.length, 'stations');
+    } catch (e) {
+      console.warn('[Taiwan] YouBike data failed:', e);
+      youBikePanel?.updateStations([]);
+    }
   }
 
   async loadIntelligenceSignals(): Promise<void> {
@@ -1809,22 +1864,31 @@ export class DataLoaderManager implements AppModule {
   async loadTRAVehicles(): Promise<void> {
     const trainPanel = this.ctx.panels['taiwan-train'] as TaiwanTrainPanel | undefined;
     try {
+      // Load sequentially to avoid TDX rate limit (429)
       const vehicles = await fetchTRAVehicles();
       this.ctx.map?.setTRAVehicles(vehicles);
       this.ctx.map?.setLayerReady('flights', vehicles.length > 0);
-      if (vehicles.length > 0) {
-        trainPanel?.updateTRA(vehicles);
-      } else {
-        trainPanel?.updateTRA([]);
-      }
+      trainPanel?.updateTRA(vehicles);
       this.ctx.statusPanel?.updateFeed('TRA Trains', {
         status: 'ok',
         itemCount: vehicles.length,
       });
       this.ctx.statusPanel?.updateApi('TDX', { status: 'ok' });
+      console.log('[Taiwan] TRA loaded:', vehicles.length, 'vehicles');
+
+      // Load THSR after TRA (staggered)
+      try {
+        const thsrTrains = await fetchTHSRTrains();
+        trainPanel?.updateTHSR(thsrTrains);
+        console.log('[Taiwan] THSR loaded:', thsrTrains.length, 'trains');
+      } catch (thsrErr) {
+        console.warn('[Taiwan] THSR failed (TRA still ok):', thsrErr);
+        trainPanel?.updateTHSR([]);
+      }
     } catch (error) {
       this.ctx.map?.setLayerReady('flights', false);
       trainPanel?.updateTRA([]);
+      trainPanel?.updateTHSR([]);
       this.ctx.statusPanel?.updateFeed('TRA Trains', { status: 'error', errorMessage: String(error) });
       this.ctx.statusPanel?.updateApi('TDX', { status: 'error' });
     }

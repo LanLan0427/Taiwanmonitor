@@ -1,18 +1,20 @@
 /**
- * TaiwanPowerEqPanel - 供電＋地震資訊
+ * TaiwanPowerEqPanel - 供電＋地震＋停電資訊
  */
 import { Panel } from './Panel';
 import { t } from '@/services/i18n';
 import { escapeHtml } from '@/utils/sanitize';
-import type { TaipowerSupply, TaiwanEarthquake } from '@/services/taiwan';
+import type { TaipowerSupply, TaiwanEarthquake, TaipowerOutage } from '@/services/taiwan';
 
-type SubTab = 'power' | 'earthquake';
+type SubTab = 'power' | 'earthquake' | 'outage';
 type PowerView = 'type' | 'plant';
 type EqFilter = 'all' | 'm4' | 'm5';
 
 export class TaiwanPowerEqPanel extends Panel {
   private powerData: TaipowerSupply | null = null;
   private earthquakes: TaiwanEarthquake[] = [];
+  private outages: TaipowerOutage[] = [];
+  private outageLoaded = false;
   private activeTab: SubTab = 'power';
   private powerView: PowerView = 'type';
   private eqFilter: EqFilter = 'all';
@@ -51,6 +53,13 @@ export class TaiwanPowerEqPanel extends Panel {
     this.render();
   }
 
+  public updateOutages(data: TaipowerOutage[]): void {
+    this.outages = data;
+    this.outageLoaded = true;
+    this.lastUpdate = new Date();
+    this.render();
+  }
+
   private render(): void {
     const tabsHtml = `
       <div class="economic-tabs">
@@ -60,10 +69,18 @@ export class TaiwanPowerEqPanel extends Panel {
         <button class="economic-tab taiwan-tab ${this.activeTab === 'earthquake' ? 'active' : ''}" data-tab="earthquake">
           🌏 ${t('panels.taiwanEarthquake') || '地震'}
         </button>
+        <button class="economic-tab taiwan-tab ${this.activeTab === 'outage' ? 'active' : ''}" data-tab="outage">
+          🔌 停電
+        </button>
       </div>
     `;
-    const contentHtml = this.activeTab === 'power' ? this.renderPower() : this.renderEarthquakes();
-    const sourceLabel = this.activeTab === 'power' ? '台灣電力公司' : '中央氣象署 CWA';
+    let contentHtml: string;
+    let sourceLabel: string;
+    switch (this.activeTab) {
+      case 'power': contentHtml = this.renderPower(); sourceLabel = '台灣電力公司'; break;
+      case 'earthquake': contentHtml = this.renderEarthquakes(); sourceLabel = '中央氣象署 CWA'; break;
+      case 'outage': contentHtml = this.renderOutages(); sourceLabel = '台灣電力公司'; break;
+    }
     const updateTime = this.lastUpdate
       ? this.lastUpdate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       : '';
@@ -176,6 +193,40 @@ export class TaiwanPowerEqPanel extends Panel {
               </div>`;
     }).join('')}
         </div>`}
+    `;
+  }
+
+  private renderOutages(): string {
+    if (!this.outageLoaded) return '<div class="economic-empty">停電資訊載入中...</div>';
+    if (this.outages.length === 0) return '<div class="economic-empty">🎉 目前全台無停電通報</div>';
+
+    const totalHouseholds = this.outages.reduce((s, o) => s + o.affectedHouseholds, 0);
+
+    return `
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;">
+        <span style="color:#ff1744;">⚠️ <strong>${this.outages.length}</strong> 件停電通報</span>
+        <span style="color:var(--text-dim);">影響 ${totalHouseholds.toLocaleString()} 戶</span>
+      </div>
+      <div style="max-height:300px;overflow-y:auto;">
+        ${this.outages.slice(0, 15).map(o => {
+      const isActive = !o.status || o.status.includes('停電');
+      const statusColor = isActive ? '#ff1744' : '#4caf50';
+      const statusText = isActive ? '停電中' : o.status || '已復電';
+      return `
+            <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <span style="font-size:13px;font-weight:600;">${escapeHtml(o.area)} ${escapeHtml(o.district)}</span>
+                <span style="font-size:11px;font-weight:600;color:${statusColor};">${escapeHtml(statusText)}</span>
+              </div>
+              <div style="font-size:11px;color:var(--text-secondary);margin-bottom:2px;">${escapeHtml(o.road)}</div>
+              <div style="font-size:11px;color:var(--text-dim);">
+                ${o.reason ? `原因: ${escapeHtml(o.reason)} · ` : ''}影響 ${o.affectedHouseholds} 戶
+                ${o.estimatedRecovery ? ` · 預計 ${escapeHtml(o.estimatedRecovery)}` : ''}
+              </div>
+            </div>`;
+    }).join('')}
+        ${this.outages.length > 15 ? `<div style="font-size:11px;color:var(--text-dim);padding:6px 0;text-align:center;">...還有 ${this.outages.length - 15} 件</div>` : ''}
+      </div>
     `;
   }
 }

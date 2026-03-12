@@ -53,6 +53,9 @@ import { TaiwanPowerEqPanel } from '@/components/TaiwanPowerEqPanel';
 import { TaiwanEnvPanel } from '@/components/TaiwanEnvPanel';
 import { TaiwanTrainPanel } from '@/components/TaiwanTrainPanel';
 import { TaiwanWeatherPanel } from '@/components/TaiwanWeatherPanel';
+import { TaiwanFlightPanel } from '@/components/TaiwanFlightPanel';
+import { TaiwanHighwayPanel } from '@/components/TaiwanHighwayPanel';
+import { TaiwanYouBikePanel } from '@/components/TaiwanYouBikePanel';
 import { focusInvestmentOnMap } from '@/services/investments-focus';
 import { debounce, saveToStorage } from '@/utils';
 import { escapeHtml } from '@/utils/sanitize';
@@ -652,6 +655,15 @@ export class PanelLayoutManager implements AppModule {
 
       const trainPanel = new TaiwanTrainPanel();
       this.ctx.panels['taiwan-train'] = trainPanel;
+
+      const flightPanel = new TaiwanFlightPanel();
+      this.ctx.panels['taiwan-flight'] = flightPanel;
+
+      const highwayPanel = new TaiwanHighwayPanel();
+      this.ctx.panels['taiwan-highway'] = highwayPanel;
+
+      const youBikePanel = new TaiwanYouBikePanel();
+      this.ctx.panels['taiwan-youbike'] = youBikePanel;
     }
 
     if (SITE_VARIANT !== 'happy') {

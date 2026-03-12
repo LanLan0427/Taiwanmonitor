@@ -558,3 +558,73 @@ function parseUVData(stations: unknown[]): UVStation[] {
         .sort((a, b) => b.uvi - a.uvi);
 }
 
+// ─── Taipower Outage ──────────────────────────────────────────────────────────
+
+export interface TaipowerOutage {
+    area: string;
+    district: string;
+    road: string;
+    reason: string;
+    affectedHouseholds: number;
+    startTime: string;
+    estimatedRecovery: string;
+    status: string;
+}
+
+const outageBreaker = createCircuitBreaker<TaipowerOutage[]>({
+    name: 'Taipower-Outage',
+    cacheTtlMs: 5 * 60 * 1000,
+    persistCache: false,
+});
+
+export async function fetchTaipowerOutage(): Promise<TaipowerOutage[]> {
+    return outageBreaker.execute(async () => {
+        const res = await fetch('/api/taiwan/data?type=outage');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.json();
+        if (raw.error && !Array.isArray(raw)) throw new Error(raw.error);
+        // Handle both: { outages: [...] } from edge function, or direct raw array/object from vite plugin
+        const outageData = raw.outages || raw.records || (Array.isArray(raw) ? raw : raw);
+        return parseOutageData(outageData);
+    }, []);
+}
+
+function parseOutageData(outages: unknown): TaipowerOutage[] {
+    // Taipower outage JSON can be nested arrays or objects
+    const items: TaipowerOutage[] = [];
+    const rawArr = Array.isArray(outages) ? outages : [];
+
+    for (const region of rawArr) {
+        if (Array.isArray(region)) {
+            for (const entry of region) {
+                const e = entry as Record<string, any>;
+                items.push({
+                    area: String(e.Area || e.county || ''),
+                    district: String(e.District || e.town || ''),
+                    road: String(e.Road || e.road || ''),
+                    reason: String(e.Reason || e.cause || ''),
+                    affectedHouseholds: Number(e.Households || e.cnt || 0),
+                    startTime: String(e.OccurTime || e.startTime || ''),
+                    estimatedRecovery: String(e.EstRecoverTime || e.estimatedRecoveryTime || ''),
+                    status: String(e.Status || e.status || ''),
+                });
+            }
+        } else if (region && typeof region === 'object') {
+            const e = region as Record<string, any>;
+            items.push({
+                area: String(e.Area || e.county || ''),
+                district: String(e.District || e.town || ''),
+                road: String(e.Road || e.road || ''),
+                reason: String(e.Reason || e.cause || ''),
+                affectedHouseholds: Number(e.Households || e.cnt || 0),
+                startTime: String(e.OccurTime || e.startTime || ''),
+                estimatedRecovery: String(e.EstRecoverTime || e.estimatedRecoveryTime || ''),
+                status: String(e.Status || e.status || ''),
+            });
+        }
+    }
+
+    return items.filter(i => i.area);
+}
+
+export function getOutageStatus(): string { return outageBreaker.getStatus(); }
