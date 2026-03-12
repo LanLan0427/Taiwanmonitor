@@ -20,6 +20,44 @@ function setCache(key: string, data: any): void {
     cache.set(key, { data, ts: Date.now() });
 }
 
+function getStaleCached(key: string): any {
+    return cache.get(key)?.data ?? null;
+}
+
+async function sleep(ms: number): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchJsonWithRetry(url: string, init: RequestInit, label: string, retries = 2, delayMs = 1200): Promise<any> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const res = await fetch(url, init);
+            if (res.ok) {
+                return await res.json();
+            }
+
+            const body = await res.text().catch(() => '');
+            const retryable = res.status === 429 || res.status >= 500;
+            if (retryable && attempt < retries) {
+                await sleep(delayMs * (attempt + 1));
+                continue;
+            }
+
+            throw new Error(`${label} HTTP ${res.status}${body ? `: ${body.slice(0, 160)}` : ''}`);
+        } catch (error) {
+            lastError = error instanceof Error ? error : new Error(String(error));
+            if (attempt < retries) {
+                await sleep(delayMs * (attempt + 1));
+                continue;
+            }
+        }
+    }
+
+    throw lastError ?? new Error(`${label} failed`);
+}
+
 // 1. Fetch OAuth2 Token
 async function fetchTDXToken(): Promise<string | null> {
     const cached = getCached('tdx-token', CACHE_TTL_TOKEN);
@@ -169,29 +207,16 @@ async function fetchAirportFIDS(token: string, airportId: string, direction: 'Ar
 // 7. Fetch Highway Live Traffic
 async function fetchHighwayLiveTraffic(token: string): Promise<any[]> {
     try {
-        const res = await fetch('https://tdx.transportdata.tw/api/basic/v2/Road/Traffic/Live/Freeway?$top=200&$format=JSON', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!res.ok) throw new Error(`TDX Highway HTTP ${res.status}`);
-        const data = await res.json();
+        const data = await fetchJsonWithRetry(
+            'https://tdx.transportdata.tw/api/basic/v2/Road/Traffic/Live/Freeway?$top=200&$format=JSON',
+            { headers: { 'Authorization': `Bearer ${token}` } },
+            'TDX Highway',
+            2,
+            1500,
+        );
         return data.LiveTraffics || data || [];
     } catch (e) {
         console.error('[TDX] Highway fetch error:', e);
-        return [];
-    }
-}
-
-// 8. Fetch YouBike Availability
-async function fetchYouBikeAvailability(token: string, city: string): Promise<any[]> {
-    try {
-        const res = await fetch(`https://tdx.transportdata.tw/api/basic/v2/Bike/Availability/City/${city}?$top=500&$format=JSON`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!res.ok) throw new Error(`TDX YouBike HTTP ${res.status}`);
-        const data = await res.json();
-        return data || [];
-    } catch (e) {
-        console.error(`[TDX] YouBike ${city} fetch error:`, e);
         return [];
     }
 }
@@ -211,46 +236,6 @@ export default async function handler(req: Request): Promise<Response> {
         });
     }
 
-    // ── TRA ──────────────────────────────────────────────────────────
-    if (type === 'tra') {
-        const cachedCombined = getCached('tra-live-combined', CACHE_TTL_LIVE);
-        if (cachedCombined) {
-            return jsonResponse(cachedCombined, 30);
-        }
-
-        const [stations, liveboards] = await Promise.all([
-            fetchTRAStations(token),
-            fetchTRALiveBoard(token)
-        ]);
-
-        const vehicles = liveboards.map(lb => {
-            const st = stations[lb.StationID];
-            if (!st) return null;
-            return {
-                id: lb.TrainNo,
-                line: 'TRA',
-                type: lb.TrainTypeName.Zh_tw,
-                delay: lb.DelayTime,
-                station: st.name,
-                direction: lb.Direction,
-                status: lb.TrainStationStatus,
-                lat: st.lat,
-                lon: st.lon,
-                updated: lb.UpdateTime
-            };
-        }).filter(Boolean);
-
-        const result = { vehicles, updatedAt: new Date().toISOString() };
-        setCache('tra-live-combined', result);
-        return jsonResponse(result, 30);
-    }
-
-    // ── THSR ─────────────────────────────────────────────────────────
-    if (type === 'thsr') {
-        const cached = getCached('thsr-live-combined', CACHE_TTL_LIVE);
-        if (cached) return jsonResponse(cached, 30);
-
-        const [stations, seats] = await Promise.all([
             fetchTHSRStations(token),
             fetchTHSRAvailability(token),
         ]);
@@ -325,56 +310,32 @@ export default async function handler(req: Request): Promise<Response> {
         const cached = getCached('highway-live', 60 * 1000);
         if (cached) return jsonResponse(cached, 60);
 
-        const raw = await fetchHighwayLiveTraffic(token);
-        const sections = raw.map((s: any) => ({
-            sectionId: s.SectionID || '',
-            sectionName: s.SectionName || '',
-            routeId: s.RouteID || '',
-            routeName: s.RouteName?.Zh_tw || s.RouteID || '',
-            direction: s.RoadDirection || '',
-            travelTime: s.TravelTime ?? 0,
-            travelSpeed: s.TravelSpeed ?? 0,
-            congestionLevel: s.Level ?? s.CongestionLevel ?? 0,
-            srcDetId: s.SrcDetID || '',
-            dstDetId: s.DstDetID || '',
-        }));
+        try {
+            const raw = await fetchHighwayLiveTraffic(token);
+            const sections = raw.map((s: any) => ({
+                sectionId: s.SectionID || '',
+                sectionName: s.SectionName || '',
+                routeId: s.RouteID || '',
+                routeName: s.RouteName?.Zh_tw || s.RouteID || '',
+                direction: s.RoadDirection || '',
+                travelTime: s.TravelTime ?? 0,
+                travelSpeed: s.TravelSpeed ?? 0,
+                congestionLevel: s.Level ?? s.CongestionLevel ?? 0,
+                srcDetId: s.SrcDetID || '',
+                dstDetId: s.DstDetID || '',
+            }));
 
-        const result = { sections, updatedAt: new Date().toISOString() };
-        setCache('highway-live', result);
-        return jsonResponse(result, 60);
-    }
-
-    // ── YouBike ──────────────────────────────────────────────────────
-    if (type === 'youbike') {
-        const cached = getCached('youbike-combined', 60 * 1000);
-        if (cached) return jsonResponse(cached, 60);
-
-        const cities = ['Taipei', 'NewTaipei', 'Taoyuan', 'Taichung', 'Kaohsiung'];
-        const results = await Promise.allSettled(
-            cities.map(city => fetchYouBikeAvailability(token, city).then(d => d.map((s: any) => ({ ...s, _city: city }))))
-        );
-
-        const stations: any[] = [];
-        for (const r of results) {
-            if (r.status === 'fulfilled') stations.push(...r.value);
+            const result = { sections, updatedAt: new Date().toISOString() };
+            setCache('highway-live', result);
+            return jsonResponse(result, 60);
+        } catch (error) {
+            const stale = getStaleCached('highway-live');
+            if (stale) return jsonResponse(stale, 60);
+            return new Response(JSON.stringify({ sections: [], error: String(error) }), {
+                headers: { 'Content-Type': 'application/json' },
+                status: 500,
+            });
         }
-
-        const parsed = stations.map((s: any) => ({
-            stationId: s.StationUID || s.StationID || '',
-            name: s.StationName?.Zh_tw || '',
-            city: s._city || '',
-            availableRent: s.AvailableRentBikes ?? 0,
-            availableReturn: s.AvailableReturnBikes ?? 0,
-            capacity: (s.AvailableRentBikes ?? 0) + (s.AvailableReturnBikes ?? 0),
-            serviceStatus: s.ServiceStatus ?? 1,
-            lat: s.StationPosition?.PositionLat ?? 0,
-            lon: s.StationPosition?.PositionLon ?? 0,
-            updatedAt: s.SrcUpdateTime || s.UpdateTime || '',
-        })).filter((s: any) => s.name && s.serviceStatus === 1);
-
-        const result = { stations: parsed, updatedAt: new Date().toISOString() };
-        setCache('youbike-combined', result);
-        return jsonResponse(result, 60);
     }
 
     return new Response(JSON.stringify({ error: `Unknown type: ${type}` }), {

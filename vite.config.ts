@@ -786,6 +786,44 @@ function taiwanTdxPlugin(): Plugin {
     if (entry && Date.now() - entry.ts < ttl) return entry.data;
     return null;
   }
+  function getStaleCached(key: string): any {
+    return cache.get(key)?.data ?? null;
+  }
+  async function sleep(ms: number): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, ms));
+  }
+  async function fetchJsonWithRetry(url: string, init: RequestInit, label: string, retries = 2, delayMs = 1200): Promise<any> {
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const response = await fetch(url, init);
+        if (response.ok) {
+          return await response.json();
+        }
+
+        const body = await response.text().catch(() => '');
+        const retryable = response.status === 429 || response.status >= 500;
+        if (retryable && attempt < retries) {
+          const waitMs = delayMs * (attempt + 1);
+          console.warn(`[TDX] ${label} retry ${attempt + 1}/${retries} after HTTP ${response.status}`);
+          await sleep(waitMs);
+          continue;
+        }
+
+        throw new Error(`${label} HTTP ${response.status}${body ? `: ${body.slice(0, 160)}` : ''}`);
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+        if (attempt < retries) {
+          const waitMs = delayMs * (attempt + 1);
+          console.warn(`[TDX] ${label} retry ${attempt + 1}/${retries} after error: ${lastError.message}`);
+          await sleep(waitMs);
+          continue;
+        }
+      }
+    }
+
+    throw lastError ?? new Error(`${label} failed`);
+  }
   async function fetchTDXToken(): Promise<string | null> {
     const cached = getCached('tdx-token', 12 * 60 * 60 * 1000);
     if (cached) return cached;
@@ -954,54 +992,22 @@ function taiwanTdxPlugin(): Plugin {
           try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000);
-            const r = await fetch('https://tdx.transportdata.tw/api/basic/v2/Road/Traffic/Live/Freeway?$format=JSON', { headers: { 'Authorization': `Bearer ${token}` }, signal: controller.signal });
+            const data = await fetchJsonWithRetry(
+              'https://tdx.transportdata.tw/api/basic/v2/Road/Traffic/Live/Freeway?$format=JSON',
+              { headers: { 'Authorization': `Bearer ${token}` }, signal: controller.signal },
+              'TDX Highway',
+              2,
+              1500,
+            );
             clearTimeout(timeoutId);
-            const data = await r.json();
             const result = { sections: data?.LiveTraffics || data || [], updatedAt: new Date().toISOString() };
             cache.set('highway-traffic', { data: result, ts: Date.now() });
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify(result));
           } catch (e: any) {
-            res.statusCode = 500; res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ sections: [], error: e.message }));
-          }
-        } else if (type === 'youbike') {
-          const cachedBike = getCached('youbike-stations', 60 * 1000);
-          if (cachedBike) {
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(cachedBike));
-            return;
-          }
-          const token = await fetchTDXToken();
-          if (!token) { res.statusCode = 500; res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ stations: [], error: 'TDX Auth Failed' })); return; }
-          try {
-            const cities = [
-              { key: 'Taipei', url: 'https://tdx.transportdata.tw/api/basic/v2/Bike/Availability/City/Taipei?$format=JSON' },
-              { key: 'NewTaipei', url: 'https://tdx.transportdata.tw/api/basic/v2/Bike/Availability/City/NewTaipei?$format=JSON' },
-              { key: 'Taoyuan', url: 'https://tdx.transportdata.tw/api/basic/v2/Bike/Availability/City/Taoyuan?$format=JSON' },
-              { key: 'Taichung', url: 'https://tdx.transportdata.tw/api/basic/v2/Bike/Availability/City/Taichung?$format=JSON' },
-              { key: 'Kaohsiung', url: 'https://tdx.transportdata.tw/api/basic/v2/Bike/Availability/City/Kaohsiung?$format=JSON' },
-            ];
-            // Fetch sequentially to avoid TDX rate limit
-            const responses: any[] = [];
-            for (const c of cities) {
-              try {
-                const r = await fetch(c.url, { headers: { 'Authorization': `Bearer ${token}` } });
-                const d = await r.json();
-                responses.push({ city: c.key, data: Array.isArray(d) ? d : (d?.message ? null : d) });
-                // Small delay between requests
-                await new Promise(resolve => setTimeout(resolve, 300));
-              } catch {
-                responses.push({ city: c.key, data: null });
-              }
-            }
-            const result = { cities: responses, updatedAt: new Date().toISOString() };
-            cache.set('youbike-stations', { data: result, ts: Date.now() });
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(result));
-          } catch (e: any) {
-            res.statusCode = 500; res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ stations: [], error: e.message }));
+            const stale = getStaleCached('highway-traffic');
+            res.statusCode = stale ? 200 : 500; res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(stale ?? { sections: [], error: e.message }));
           }
         } else {
           res.setHeader('Content-Type', 'application/json');

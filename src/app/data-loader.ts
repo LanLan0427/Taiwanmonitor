@@ -128,14 +128,13 @@ import { getPersistentCache, setPersistentCache } from '@/services/persistent-ca
 import type { ThreatLevel as ClientThreatLevel } from '@/services/threat-classifier';
 import type { NewsItem as ProtoNewsItem, ThreatLevel as ProtoThreatLevel } from '@/generated/client/worldmonitor/news/v1/service_client';
 import { fetchTaipowerSupply, fetchTaiwanEarthquakes, fetchTaiwanAQI, fetchTaiwanReservoirs, fetchCWAWeather, fetchCWAForecast, fetchCWATyphoon, fetchMOENVUV, fetchTaipowerOutage } from '@/services/taiwan';
-import { fetchTRAVehicles, fetchTHSRTrains, fetchTaiwanFlights, fetchHighwayTraffic, fetchYouBikeStations } from '@/services/taiwan/tdx';
+import { fetchTRAVehicles, fetchTHSRTrains, fetchTaiwanFlights, fetchHighwayTraffic } from '@/services/taiwan/tdx';
 import { TaiwanPowerEqPanel } from '@/components/TaiwanPowerEqPanel';
 import { TaiwanEnvPanel } from '@/components/TaiwanEnvPanel';
 import { TaiwanTrainPanel } from '@/components/TaiwanTrainPanel';
 import { TaiwanWeatherPanel } from '@/components/TaiwanWeatherPanel';
 import { TaiwanFlightPanel } from '@/components/TaiwanFlightPanel';
 import { TaiwanHighwayPanel } from '@/components/TaiwanHighwayPanel';
-import { TaiwanYouBikePanel } from '@/components/TaiwanYouBikePanel';
 
 const PROTO_TO_CLIENT_LEVEL: Record<ProtoThreatLevel, ClientThreatLevel> = {
   THREAT_LEVEL_UNSPECIFIED: 'info',
@@ -282,12 +281,14 @@ export class DataLoaderManager implements AppModule {
       }
     };
 
-    const tasks: Array<{ name: string; task: Promise<void> }> = [
-      { name: 'news', task: runGuarded('news', () => this.loadNews()) },
-    ];
+    const tasks: Array<{ name: string; task: Promise<void> }> = [];
+
+    if (SITE_VARIANT !== 'taiwan') {
+      tasks.push({ name: 'news', task: runGuarded('news', () => this.loadNews()) });
+    }
 
     // Happy variant only loads news data -- skip all geopolitical/financial/military data
-    if (SITE_VARIANT !== 'happy') {
+    if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan') {
       tasks.push({ name: 'markets', task: runGuarded('markets', () => this.loadMarkets()) });
       tasks.push({ name: 'predictions', task: runGuarded('predictions', () => this.loadPredictions()) });
       tasks.push({ name: 'pizzint', task: runGuarded('pizzint', () => this.loadPizzInt()) });
@@ -302,15 +303,13 @@ export class DataLoaderManager implements AppModule {
         tasks.push({ name: 'supplyChain', task: runGuarded('supplyChain', () => this.loadSupplyChain()) });
       }
 
-      // Taiwan variant - Taiwan-specific data
-      if (SITE_VARIANT === 'taiwan') {
-        tasks.push({ name: 'taiwanData', task: runGuarded('taiwanData', () => this.loadTaiwanData()) });
-        // Stagger TDX calls to avoid rate limit (429)
-        const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
-        tasks.push({ name: 'taiwanFlights', task: runGuarded('taiwanFlights', async () => { await delay(3000); return this.loadTaiwanFlights(); }) });
-        tasks.push({ name: 'taiwanHighway', task: runGuarded('taiwanHighway', async () => { await delay(6000); return this.loadHighwayTraffic(); }) });
-        tasks.push({ name: 'taiwanYouBike', task: runGuarded('taiwanYouBike', async () => { await delay(9000); return this.loadYouBikeData(); }) });
-      }
+    }
+
+    if (SITE_VARIANT === 'taiwan') {
+      tasks.push({ name: 'taiwanData', task: runGuarded('taiwanData', () => this.loadTaiwanData()) });
+      const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+      tasks.push({ name: 'taiwanFlights', task: runGuarded('taiwanFlights', async () => { await delay(5000); return this.loadTaiwanFlights(); }) });
+      tasks.push({ name: 'taiwanHighway', task: runGuarded('taiwanHighway', async () => { await delay(12000); return this.loadHighwayTraffic(); }) });
     }
 
     // Progress charts data (happy variant only)
@@ -343,36 +342,37 @@ export class DataLoaderManager implements AppModule {
       });
     }
 
-    // Global giving activity data (all variants)
-    tasks.push({
-      name: 'giving',
-      task: runGuarded('giving', async () => {
-        const givingResult = await fetchGivingSummary();
-        if (!givingResult.ok) {
-          dataFreshness.recordError('giving', 'Giving data unavailable (retaining prior state)');
-          return;
-        }
-        const data = givingResult.data;
-        (this.ctx.panels['giving'] as GivingPanel)?.setData(data);
-        if (data.platforms.length > 0) dataFreshness.recordUpdate('giving', data.platforms.length);
-      }),
-    });
+    if (SITE_VARIANT !== 'taiwan') {
+      tasks.push({
+        name: 'giving',
+        task: runGuarded('giving', async () => {
+          const givingResult = await fetchGivingSummary();
+          if (!givingResult.ok) {
+            dataFreshness.recordError('giving', 'Giving data unavailable (retaining prior state)');
+            return;
+          }
+          const data = givingResult.data;
+          (this.ctx.panels['giving'] as GivingPanel)?.setData(data);
+          if (data.platforms.length > 0) dataFreshness.recordUpdate('giving', data.platforms.length);
+        }),
+      });
+    }
 
     if (SITE_VARIANT === 'full') {
       tasks.push({ name: 'intelligence', task: runGuarded('intelligence', () => this.loadIntelligenceSignals()) });
     }
 
     if (SITE_VARIANT === 'full') tasks.push({ name: 'firms', task: runGuarded('firms', () => this.loadFirmsData()) });
-    if (this.ctx.mapLayers.natural) tasks.push({ name: 'natural', task: runGuarded('natural', () => this.loadNatural()) });
-    if (SITE_VARIANT !== 'happy' && this.ctx.mapLayers.weather) tasks.push({ name: 'weather', task: runGuarded('weather', () => this.loadWeatherAlerts()) });
-    if (SITE_VARIANT !== 'happy' && this.ctx.mapLayers.ais) tasks.push({ name: 'ais', task: runGuarded('ais', () => this.loadAisSignals()) });
-    if (SITE_VARIANT !== 'happy' && this.ctx.mapLayers.cables) tasks.push({ name: 'cables', task: runGuarded('cables', () => this.loadCableActivity()) });
-    if (SITE_VARIANT !== 'happy' && this.ctx.mapLayers.cables) tasks.push({ name: 'cableHealth', task: runGuarded('cableHealth', () => this.loadCableHealth()) });
+    if (SITE_VARIANT !== 'taiwan' && this.ctx.mapLayers.natural) tasks.push({ name: 'natural', task: runGuarded('natural', () => this.loadNatural()) });
+    if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan' && this.ctx.mapLayers.weather) tasks.push({ name: 'weather', task: runGuarded('weather', () => this.loadWeatherAlerts()) });
+    if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan' && this.ctx.mapLayers.ais) tasks.push({ name: 'ais', task: runGuarded('ais', () => this.loadAisSignals()) });
+    if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan' && this.ctx.mapLayers.cables) tasks.push({ name: 'cables', task: runGuarded('cables', () => this.loadCableActivity()) });
+    if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan' && this.ctx.mapLayers.cables) tasks.push({ name: 'cableHealth', task: runGuarded('cableHealth', () => this.loadCableHealth()) });
     if (SITE_VARIANT === 'taiwan' && this.ctx.mapLayers.flights) tasks.push({ name: 'traVehicles', task: runGuarded('traVehicles', () => this.loadTRAVehicles()) });
-    else if (SITE_VARIANT !== 'happy' && this.ctx.mapLayers.flights) tasks.push({ name: 'flights', task: runGuarded('flights', () => this.loadFlightDelays()) });
-    if (SITE_VARIANT !== 'happy' && CYBER_LAYER_ENABLED && this.ctx.mapLayers.cyberThreats) tasks.push({ name: 'cyberThreats', task: runGuarded('cyberThreats', () => this.loadCyberThreats()) });
-    if (SITE_VARIANT !== 'happy') tasks.push({ name: 'iranAttacks', task: runGuarded('iranAttacks', () => this.loadIranEvents()) });
-    if (SITE_VARIANT !== 'happy' && (this.ctx.mapLayers.techEvents || SITE_VARIANT === 'tech')) tasks.push({ name: 'techEvents', task: runGuarded('techEvents', () => this.loadTechEvents()) });
+    else if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan' && this.ctx.mapLayers.flights) tasks.push({ name: 'flights', task: runGuarded('flights', () => this.loadFlightDelays()) });
+    if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan' && CYBER_LAYER_ENABLED && this.ctx.mapLayers.cyberThreats) tasks.push({ name: 'cyberThreats', task: runGuarded('cyberThreats', () => this.loadCyberThreats()) });
+    if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan') tasks.push({ name: 'iranAttacks', task: runGuarded('iranAttacks', () => this.loadIranEvents()) });
+    if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan' && (this.ctx.mapLayers.techEvents || SITE_VARIANT === 'tech')) tasks.push({ name: 'techEvents', task: runGuarded('techEvents', () => this.loadTechEvents()) });
 
     if (SITE_VARIANT === 'tech') {
       tasks.push({ name: 'techReadiness', task: runGuarded('techReadiness', () => (this.ctx.panels['tech-readiness'] as TechReadinessPanel)?.refresh()) });
@@ -1305,18 +1305,6 @@ export class DataLoaderManager implements AppModule {
     } catch (e) {
       console.warn('[Taiwan] Highway data failed:', e);
       highwayPanel?.updateSections([]);
-    }
-  }
-
-  async loadYouBikeData(): Promise<void> {
-    const youBikePanel = this.ctx.panels['taiwan-youbike'] as TaiwanYouBikePanel | undefined;
-    try {
-      const stations = await fetchYouBikeStations();
-      youBikePanel?.updateStations(stations);
-      console.log('[Taiwan] YouBike data loaded:', stations.length, 'stations');
-    } catch (e) {
-      console.warn('[Taiwan] YouBike data failed:', e);
-      youBikePanel?.updateStations([]);
     }
   }
 

@@ -54,18 +54,6 @@ export interface HighwaySection {
     congestionLevel: number;  // 0: free, 1: slightly congested, 2: congested, 3: heavy
 }
 
-export interface YouBikeStation {
-    stationId: string;
-    name: string;
-    city: string;
-    availableRent: number;
-    availableReturn: number;
-    capacity: number;
-    lat: number;
-    lon: number;
-    updatedAt: string;
-}
-
 // ─── Circuit Breakers ─────────────────────────────────────────────
 
 const tdxBreaker = createCircuitBreaker<TDXVehicle[]>({
@@ -88,12 +76,6 @@ const flightBreaker = createCircuitBreaker<TaiwanFlight[]>({
 
 const highwayBreaker = createCircuitBreaker<HighwaySection[]>({
     name: 'tdx-highway',
-    maxFailures: 3,
-    cooldownMs: 15000,
-});
-
-const youBikeBreaker = createCircuitBreaker<YouBikeStation[]>({
-    name: 'tdx-youbike',
     maxFailures: 3,
     cooldownMs: 15000,
 });
@@ -230,55 +212,19 @@ export async function fetchHighwayTraffic(): Promise<HighwaySection[]> {
 
             sections.push({
                 sectionId: s.SectionID || '',
-                sectionName: '', // TDX doesn't provide section names in this endpoint
-                routeId: '',
-                routeName: '',
-                direction: '',
+                sectionName: s.SectionName || '',
+                routeId: s.RouteID || '',
+                routeName: s.RouteName?.Zh_tw || s.RouteID || '',
+                direction: s.RoadDirection || '',
                 travelTime: s.TravelTime ?? 0,
                 travelSpeed: speed,
-                congestionLevel: congestion,
+                congestionLevel: s.Level ?? congestion,
             });
         }
+        if (sections.length === 0) {
+            throw new Error('TDX Highway returned 0 sections');
+        }
         return sections;
-    }, []);
-}
-
-export async function fetchYouBikeStations(): Promise<YouBikeStation[]> {
-    return youBikeBreaker.execute(async () => {
-        const res = await fetch('/api/taiwan/tdx?type=youbike');
-        if (!res.ok) throw new Error(`TDX YouBike HTTP error ${res.status}`);
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-
-        // If pre-parsed (edge function)
-        if (data.stations && Array.isArray(data.stations) && data.stations.length > 0 && data.stations[0].stationId) {
-            return data.stations;
-        }
-
-        // Parse raw TDX response
-        // Shape: { cities: [{ city: "Taipei", data: [{ StationUID, AvailableRentBikes, ... }] }] }
-        const stations: YouBikeStation[] = [];
-        const cityResults = data.cities || [];
-        for (const cityRes of cityResults) {
-            const city = cityRes.city || '';
-            const bikes = cityRes.data;
-            if (!bikes || !Array.isArray(bikes)) continue;  // skip rate-limited or bad responses
-
-            for (const b of bikes) {
-                stations.push({
-                    stationId: b.StationUID || b.StationID || '',
-                    name: b.StationName?.Zh_tw || b.StationName || '',
-                    city,
-                    availableRent: b.AvailableRentBikes ?? 0,
-                    availableReturn: b.AvailableReturnBikes ?? 0,
-                    capacity: (b.AvailableRentBikes ?? 0) + (b.AvailableReturnBikes ?? 0),
-                    lat: b.StationPosition?.PositionLat ?? 0,
-                    lon: b.StationPosition?.PositionLon ?? 0,
-                    updatedAt: b.UpdateTime || '',
-                });
-            }
-        }
-        return stations;
     }, []);
 }
 

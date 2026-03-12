@@ -55,7 +55,6 @@ import { TaiwanTrainPanel } from '@/components/TaiwanTrainPanel';
 import { TaiwanWeatherPanel } from '@/components/TaiwanWeatherPanel';
 import { TaiwanFlightPanel } from '@/components/TaiwanFlightPanel';
 import { TaiwanHighwayPanel } from '@/components/TaiwanHighwayPanel';
-import { TaiwanYouBikePanel } from '@/components/TaiwanYouBikePanel';
 import { focusInvestmentOnMap } from '@/services/investments-focus';
 import { debounce, saveToStorage } from '@/utils';
 import { escapeHtml } from '@/utils/sanitize';
@@ -640,7 +639,9 @@ export class PanelLayoutManager implements AppModule {
       this.ctx.panels['gulf-economies'] = gulfEconomiesPanel;
     }
 
-    this.ctx.panels['world-clock'] = new WorldClockPanel();
+    if (SITE_VARIANT !== 'taiwan') {
+      this.ctx.panels['world-clock'] = new WorldClockPanel();
+    }
 
     // Taiwan variant - Taiwan-specific data panels
     if (SITE_VARIANT === 'taiwan') {
@@ -661,12 +662,9 @@ export class PanelLayoutManager implements AppModule {
 
       const highwayPanel = new TaiwanHighwayPanel();
       this.ctx.panels['taiwan-highway'] = highwayPanel;
-
-      const youBikePanel = new TaiwanYouBikePanel();
-      this.ctx.panels['taiwan-youbike'] = youBikePanel;
     }
 
-    if (SITE_VARIANT !== 'happy') {
+    if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan') {
       if (!this.ctx.panels['gulf-economies']) {
         const gulfEconomiesPanel = new GulfEconomiesPanel();
         this.ctx.panels['gulf-economies'] = gulfEconomiesPanel;
@@ -696,11 +694,11 @@ export class PanelLayoutManager implements AppModule {
       this.ctx.panels['runtime-config'] = runtimeConfigPanel;
     }
 
-    const insightsPanel = new InsightsPanel();
-    this.ctx.panels['insights'] = insightsPanel;
-
-    // Global Giving panel (all variants)
-    this.ctx.panels['giving'] = new GivingPanel();
+    if (SITE_VARIANT !== 'taiwan') {
+      const insightsPanel = new InsightsPanel();
+      this.ctx.panels['insights'] = insightsPanel;
+      this.ctx.panels['giving'] = new GivingPanel();
+    }
 
     // Happy variant panels
     if (SITE_VARIANT === 'happy') {
@@ -751,7 +749,7 @@ export class PanelLayoutManager implements AppModule {
       const insertIdx = valid.indexOf('politics') + 1 || 0;
       const newPanels = missing.filter(k => k !== 'monitors');
       valid.splice(insertIdx, 0, ...newPanels);
-      if (SITE_VARIANT !== 'happy') {
+      if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan') {
         valid.push('monitors');
       }
       panelOrder = valid;
@@ -767,7 +765,7 @@ export class PanelLayoutManager implements AppModule {
       });
     }
 
-    if (SITE_VARIANT !== 'happy') {
+    if (SITE_VARIANT !== 'happy' && SITE_VARIANT !== 'taiwan') {
       const liveNewsIdx = panelOrder.indexOf('live-news');
       if (liveNewsIdx > 0) {
         panelOrder.splice(liveNewsIdx, 1);
