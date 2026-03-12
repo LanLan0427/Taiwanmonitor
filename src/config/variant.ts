@@ -29,5 +29,8 @@ export const SITE_VARIANT: string = (() => {
     return 'full';
   }
 
+  // Non-production hosts (e.g. ngrok tunnels, staging): honour VITE_VARIANT env
+  if (isValidVariant(envVariant)) return envVariant;
+
   return 'full';
 })();
