@@ -358,7 +358,7 @@ export class PanelLayoutManager implements AppModule {
     this.ctx.map = new MapContainer(mapContainer, {
       zoom: this.ctx.isMobile ? (SITE_VARIANT === 'taiwan' ? 6.5 : 2.5) : (SITE_VARIANT === 'taiwan' ? 7.0 : 1.0),
       pan: { x: 0, y: 0 },
-      view: this.ctx.isMobile ? this.ctx.resolvedLocation : (SITE_VARIANT === 'taiwan' ? 'taiwan' : 'global'),
+      view: SITE_VARIANT === 'taiwan' ? 'taiwan' : (this.ctx.isMobile ? this.ctx.resolvedLocation : 'global'),
       layers: this.ctx.mapLayers,
       timeRange: '7d',
     });

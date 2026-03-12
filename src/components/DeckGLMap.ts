@@ -1013,7 +1013,7 @@ export class DeckGLMap {
     const layers: (Layer | null | false)[] = [];
     const { layers: mapLayers } = this.state;
     const filteredEarthquakes = mapLayers.natural ? this.filterByTime(this.earthquakes, (eq) => eq.occurredAt) : [];
-    const filteredNaturalEvents = mapLayers.natural ? this.filterByTime(this.naturalEvents, (event) => event.date) : [];
+    const filteredNaturalEvents = mapLayers.natural && SITE_VARIANT !== 'taiwan' ? this.filterByTime(this.naturalEvents, (event) => event.date) : [];
     const filteredWeatherAlerts = mapLayers.weather ? this.filterByTime(this.weatherAlerts, (alert) => alert.onset) : [];
     const filteredOutages = mapLayers.outages ? this.filterByTime(this.outages, (outage) => outage.pubDate) : [];
     const filteredCableAdvisories = mapLayers.cables ? this.filterByTime(this.cableAdvisories, (advisory) => advisory.reported) : [];
@@ -3347,6 +3347,13 @@ export class DeckGLMap {
             { key: 'speciesRecovery', label: 'Species Recovery', icon: '&#128062;' },
             { key: 'renewableInstallations', label: 'Clean Energy', icon: '&#9889;' },
           ]
+          : SITE_VARIANT === 'taiwan'
+            ? [
+              { key: 'flights', label: '台鐵列車', icon: '&#128642;' },
+              { key: 'natural', label: '台灣地震', icon: '&#127755;' },
+              { key: 'weather', label: '空氣品質 AQI', icon: '&#127777;' },
+              { key: 'waterways', label: '水庫水情', icon: '&#128167;' },
+            ]
           : [
             { key: 'iranAttacks', label: t('components.deckgl.layers.iranAttacks'), icon: '&#127919;' },
             { key: 'hotspots', label: t('components.deckgl.layers.intelHotspots'), icon: '&#127919;' },
@@ -3788,7 +3795,7 @@ export class DeckGLMap {
   }
 
   private resetView(): void {
-    this.setView('global');
+    this.setView(SITE_VARIANT === 'taiwan' ? 'taiwan' : 'global');
   }
 
   private createUcdpEventsLayer(events: UcdpGeoEvent[]): ScatterplotLayer<UcdpGeoEvent> {

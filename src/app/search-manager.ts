@@ -220,6 +220,7 @@ export class SearchManager implements AppModule {
 
   private handleSearchResult(result: SearchResult): void {
     trackSearchResultSelected(result.type);
+    const defaultMapView = SITE_VARIANT === 'taiwan' ? 'taiwan' : 'global';
     switch (result.type) {
       case 'news': {
         const item = result.data as NewsItem;
@@ -229,13 +230,13 @@ export class SearchManager implements AppModule {
       }
       case 'hotspot': {
         const hotspot = result.data as typeof INTEL_HOTSPOTS[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         setTimeout(() => { this.ctx.map?.triggerHotspotClick(hotspot.id); }, 300);
         break;
       }
       case 'conflict': {
         const conflict = result.data as typeof CONFLICT_ZONES[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         setTimeout(() => { this.ctx.map?.triggerConflictClick(conflict.id); }, 300);
         break;
       }
@@ -249,13 +250,13 @@ export class SearchManager implements AppModule {
       }
       case 'base': {
         const base = result.data as typeof MILITARY_BASES[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         setTimeout(() => { this.ctx.map?.triggerBaseClick(base.id); }, 300);
         break;
       }
       case 'pipeline': {
         const pipeline = result.data as typeof PIPELINES[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('pipelines');
         this.ctx.mapLayers.pipelines = true;
         setTimeout(() => { this.ctx.map?.triggerPipelineClick(pipeline.id); }, 300);
@@ -263,7 +264,7 @@ export class SearchManager implements AppModule {
       }
       case 'cable': {
         const cable = result.data as typeof UNDERSEA_CABLES[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('cables');
         this.ctx.mapLayers.cables = true;
         setTimeout(() => { this.ctx.map?.triggerCableClick(cable.id); }, 300);
@@ -271,7 +272,7 @@ export class SearchManager implements AppModule {
       }
       case 'datacenter': {
         const dc = result.data as typeof AI_DATA_CENTERS[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('datacenters');
         this.ctx.mapLayers.datacenters = true;
         setTimeout(() => { this.ctx.map?.triggerDatacenterClick(dc.id); }, 300);
@@ -279,7 +280,7 @@ export class SearchManager implements AppModule {
       }
       case 'nuclear': {
         const nuc = result.data as typeof NUCLEAR_FACILITIES[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('nuclear');
         this.ctx.mapLayers.nuclear = true;
         setTimeout(() => { this.ctx.map?.triggerNuclearClick(nuc.id); }, 300);
@@ -287,7 +288,7 @@ export class SearchManager implements AppModule {
       }
       case 'irradiator': {
         const irr = result.data as typeof GAMMA_IRRADIATORS[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('irradiators');
         this.ctx.mapLayers.irradiators = true;
         setTimeout(() => { this.ctx.map?.triggerIrradiatorClick(irr.id); }, 300);
@@ -295,11 +296,11 @@ export class SearchManager implements AppModule {
       }
       case 'earthquake':
       case 'outage':
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         break;
       case 'techcompany': {
         const company = result.data as typeof TECH_COMPANIES[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('techHQs');
         this.ctx.mapLayers.techHQs = true;
         setTimeout(() => { this.ctx.map?.setCenter(company.lat, company.lon, 4); }, 300);
@@ -307,26 +308,26 @@ export class SearchManager implements AppModule {
       }
       case 'ailab': {
         const lab = result.data as typeof AI_RESEARCH_LABS[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         setTimeout(() => { this.ctx.map?.setCenter(lab.lat, lab.lon, 4); }, 300);
         break;
       }
       case 'startup': {
         const ecosystem = result.data as typeof STARTUP_ECOSYSTEMS[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('startupHubs');
         this.ctx.mapLayers.startupHubs = true;
         setTimeout(() => { this.ctx.map?.setCenter(ecosystem.lat, ecosystem.lon, 4); }, 300);
         break;
       }
       case 'techevent':
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('techEvents');
         this.ctx.mapLayers.techEvents = true;
         break;
       case 'techhq': {
         const hq = result.data as typeof TECH_HQS[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('techHQs');
         this.ctx.mapLayers.techHQs = true;
         setTimeout(() => { this.ctx.map?.setCenter(hq.lat, hq.lon, 4); }, 300);
@@ -334,7 +335,7 @@ export class SearchManager implements AppModule {
       }
       case 'accelerator': {
         const acc = result.data as typeof ACCELERATORS[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('accelerators');
         this.ctx.mapLayers.accelerators = true;
         setTimeout(() => { this.ctx.map?.setCenter(acc.lat, acc.lon, 4); }, 300);
@@ -342,7 +343,7 @@ export class SearchManager implements AppModule {
       }
       case 'exchange': {
         const exchange = result.data as typeof STOCK_EXCHANGES[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('stockExchanges');
         this.ctx.mapLayers.stockExchanges = true;
         setTimeout(() => { this.ctx.map?.setCenter(exchange.lat, exchange.lon, 4); }, 300);
@@ -350,7 +351,7 @@ export class SearchManager implements AppModule {
       }
       case 'financialcenter': {
         const fc = result.data as typeof FINANCIAL_CENTERS[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('financialCenters');
         this.ctx.mapLayers.financialCenters = true;
         setTimeout(() => { this.ctx.map?.setCenter(fc.lat, fc.lon, 4); }, 300);
@@ -358,7 +359,7 @@ export class SearchManager implements AppModule {
       }
       case 'centralbank': {
         const bank = result.data as typeof CENTRAL_BANKS[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('centralBanks');
         this.ctx.mapLayers.centralBanks = true;
         setTimeout(() => { this.ctx.map?.setCenter(bank.lat, bank.lon, 4); }, 300);
@@ -366,7 +367,7 @@ export class SearchManager implements AppModule {
       }
       case 'commodityhub': {
         const hub = result.data as typeof COMMODITY_HUBS[0];
-        this.ctx.map?.setView('global');
+        this.ctx.map?.setView(defaultMapView);
         this.ctx.map?.enableLayer('commodityHubs');
         this.ctx.mapLayers.commodityHubs = true;
         setTimeout(() => { this.ctx.map?.setCenter(hub.lat, hub.lon, 4); }, 300);
@@ -386,6 +387,7 @@ export class SearchManager implements AppModule {
     if (colonIdx === -1) return;
     const category = cmd.id.slice(0, colonIdx);
     const action = cmd.id.slice(colonIdx + 1);
+    const defaultMapView = SITE_VARIANT === 'taiwan' ? 'taiwan' : 'global';
 
     switch (category) {
       case 'nav':
@@ -477,7 +479,7 @@ export class SearchManager implements AppModule {
           const lon = (minLon + maxLon) / 2;
           const span = Math.max(maxLat - minLat, maxLon - minLon);
           const zoom = span > 40 ? 3 : span > 15 ? 4 : span > 5 ? 5 : 6;
-          this.ctx.map?.setView('global');
+          this.ctx.map?.setView(defaultMapView);
           setTimeout(() => { this.ctx.map?.setCenter(lat, lon, zoom); }, 300);
         }
         break;

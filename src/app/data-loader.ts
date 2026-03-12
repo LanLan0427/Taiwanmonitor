@@ -2,6 +2,7 @@ import type { AppContext, AppModule } from '@/app/app-context';
 import type { NewsItem, MapLayers, SocialUnrestEvent } from '@/types';
 import type { MarketData } from '@/types';
 import type { TimeRange } from '@/components';
+import type { Earthquake } from '@/services/earthquakes';
 import {
   FEEDS,
   INTEL_SOURCES,
@@ -1184,10 +1185,26 @@ export class DataLoaderManager implements AppModule {
           const quakes = await fetchTaiwanEarthquakes();
           if (quakes.length > 0) {
             powerEqPanel?.updateEarthquakes(quakes);
+            const mapEarthquakes: Earthquake[] = quakes.map((quake) => ({
+              id: quake.id,
+              place: quake.location,
+              magnitude: quake.magnitude,
+              depthKm: quake.depth,
+              location: {
+                latitude: quake.lat,
+                longitude: quake.lon,
+              },
+              occurredAt: Date.parse(quake.time) || Date.now(),
+              sourceUrl: '',
+            }));
+            this.ctx.map?.setEarthquakes(mapEarthquakes);
             console.log('[Taiwan] Earthquake data loaded:', quakes.length, 'quakes');
+          } else {
+            this.ctx.map?.setEarthquakes([]);
           }
         } catch (e) {
           console.warn('[Taiwan] Earthquake data failed:', e);
+          this.ctx.map?.setEarthquakes([]);
         }
       })(),
       // AQI data

@@ -374,7 +374,16 @@ export class MapComponent {
     const happyLayers: (keyof MapLayers)[] = [
       'positiveEvents', 'kindness', 'happiness', 'speciesRecovery', 'renewableInstallations',
     ];
-    const layers = SITE_VARIANT === 'tech' ? techLayers : SITE_VARIANT === 'finance' ? financeLayers : SITE_VARIANT === 'happy' ? happyLayers : fullLayers;
+    const taiwanLayers: (keyof MapLayers)[] = ['flights', 'natural', 'weather', 'waterways'];
+    const layers = SITE_VARIANT === 'tech'
+      ? techLayers
+      : SITE_VARIANT === 'finance'
+        ? financeLayers
+        : SITE_VARIANT === 'happy'
+          ? happyLayers
+          : SITE_VARIANT === 'taiwan'
+            ? taiwanLayers
+            : fullLayers;
     const layerLabelKeys: Partial<Record<keyof MapLayers, string>> = {
       hotspots: 'components.deckgl.layers.intelHotspots',
       conflicts: 'components.deckgl.layers.conflictZones',
@@ -408,6 +417,9 @@ export class MapComponent {
     const getLayerLabel = (layer: keyof MapLayers): string => {
       if (layer === 'sanctions') return t('components.deckgl.layerHelp.labels.sanctions');
       if (layer === 'flights' && SITE_VARIANT === 'taiwan') return '🚂 台鐵列車';
+      if (layer === 'natural' && SITE_VARIANT === 'taiwan') return '🌏 台灣地震';
+      if (layer === 'weather' && SITE_VARIANT === 'taiwan') return '🌫️ 空氣品質 AQI';
+      if (layer === 'waterways' && SITE_VARIANT === 'taiwan') return '💧 水庫水情';
       const key = layerLabelKeys[layer];
       return key ? t(key) : layer;
     };
