@@ -51,6 +51,12 @@ Taiwan Monitor 以台灣即時公共資訊監測為核心，聚焦以下**台灣
 
 ---
 
+## 功能完成度
+
+- 台灣功能完成度對照表：[`docs/TAIWAN_FEATURE_STATUS.md`](docs/TAIWAN_FEATURE_STATUS.md)
+
+---
+
 ## 技術架構
 
 - **前端**：TypeScript + Vite + MapLibre GL JS + deck.gl
